@@ -1,7 +1,7 @@
 ﻿# AVUS-RN
 
 <p align="center">
-  <img src="./assets/images/icon.png" width="120"/>
+  <img src="./assets/images/icon.jpg" width="120"/>
 </p>
 
 # AI-Powered Web3 Wallet

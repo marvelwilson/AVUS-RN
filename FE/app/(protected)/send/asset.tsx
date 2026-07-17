@@ -10,7 +10,6 @@ import ScreenHeader from "@/src/components/transaction/ScreenHeader";
 import PolicyManager from "@/src/sdk/fan/policy/manager";
 import type { FanChainPolicy } from "@/src/sdk/fan/types/policy";
 import { useWalletStore } from "@/src/store/wallet";
-import { getTokenAddress } from "@/src/constants";
 
 export default function ChooseAsset() {
   const router = useRouter();
@@ -31,7 +30,7 @@ export default function ChooseAsset() {
   useEffect(() => {
     void (async () => {
       const manifest = PolicyManager.get() ?? await PolicyManager.load();
-      const enabled = manifest.assets.supportedChains.filter((chain) => chain.enabled && chain.chainId);
+      const enabled = manifest.assets.supportedChains.filter((chain) => chain.enabled && chain.sendEnabled && chain.chainId);
       setChains(enabled);
       setChainId(enabled[0]?.chainId);
       setLoading(false);
@@ -44,13 +43,13 @@ export default function ChooseAsset() {
   const selectedChain = chains.find((chain) => chain.chainId === chainId);
   const availableTokens = useMemo(() => {
     if (!selectedChain) return [];
+    const sendTokens = selectedChain.sendTokens ?? selectedChain.tokens;
     return balances.filter((asset) => {
       const symbol = asset.ticker ?? asset.symbol;
-      const routable = symbol === selectedChain.nativeToken ||
-        (selectedChain.chainId && getTokenAddress(selectedChain.chainId, symbol));
+      const routable = sendTokens.some((item) => item.symbol === symbol);
 
       return BigInt(asset.amount ?? 0) > 0n &&
-        selectedChain.supportedTokens.includes(symbol) && routable;
+        routable;
     });
   }, [balances, selectedChain]);
 
@@ -64,7 +63,9 @@ export default function ChooseAsset() {
     const asset = availableTokens.find((item) => (item.ticker ?? item.symbol) === token);
     if (!asset || !selectedChain || !chainId || !token) return;
     const isNative = token === selectedChain.nativeToken;
-    const tokenAddress = isNative ? zeroAddress : getTokenAddress(chainId, token);
+    const tokenAddress = isNative
+      ? zeroAddress
+      : (selectedChain.sendTokens ?? selectedChain.tokens).find((item) => item.symbol === token)?.address;
     if (!tokenAddress) return;
     router.push({
       pathname: "/(protected)/send/amount",

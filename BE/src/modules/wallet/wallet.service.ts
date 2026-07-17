@@ -30,6 +30,7 @@ class WalletService {
             embeddedAddress: string;
             smartAccountAddress: string;
             network: WalletNetwork;
+            sraConfigVersion?: number;
         }
     ) {
         const embeddedAddress =
@@ -47,6 +48,7 @@ class WalletService {
                 embeddedAddress,
                 smartAccountAddress,
                 network: data.network,
+                sraConfigVersion: data.sraConfigVersion ?? 0,
                 isPrimary: true,
                 isDeployed: false,
             },

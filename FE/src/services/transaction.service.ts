@@ -18,6 +18,7 @@ import transactionApi from "@/src/api/transaction.api";
 import { zeroAddress } from "viem";
 import { useSettingsStore } from "@/src/store/settings";
 import { getChainName } from "@/src/constants/chains";
+import PolicyManager from "@/src/sdk/fan/policy/manager";
 
 type TransactionRecord = { _id: string };
 
@@ -73,9 +74,20 @@ class TransactionService {
              * Send Intent
              */
             const sponsoredGas = useSettingsStore.getState().sponsoredGas;
+            const gasToken = sponsoredGas ? "SPONSORED" : "USDC";
+            const manifest = PolicyManager.get() ?? await PolicyManager.load();
+            const arbitrumPolicy = manifest.assets.supportedChains.find(({ chainId }) => chainId === 42161);
+            const gasTokenAddress = arbitrumPolicy?.tokens.find(({ symbol }) => symbol === "USDC")?.address;
+            console.log("[ZeroDev gas]", {
+                mode: sponsoredGas ? "developer-sponsored" : "user-paid",
+                gasToken,
+                settlementChain: "Arbitrum",
+                tokenAddress: gasTokenAddress,
+                sponsorsAllUsers: sponsoredGas,
+            });
             const { uiHash } = await sendIntent({
                 ...bundle,
-                gasToken: sponsoredGas ? "SPONSORED" : undefined,
+                gasToken,
             });
 
             /**

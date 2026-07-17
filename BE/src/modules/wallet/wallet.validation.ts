@@ -5,7 +5,7 @@ export function validateWalletRegistration(
     res: Response,
     next: NextFunction
 ) {
-    const { embeddedAddress, smartAccountAddress, network } = req.body;
+    const { embeddedAddress, smartAccountAddress, network, sraConfigVersion } = req.body;
 
     if (!embeddedAddress || typeof embeddedAddress !== "string") {
         return res.status(400).json({
@@ -25,6 +25,13 @@ export function validateWalletRegistration(
         return res.status(400).json({
             success: false,
             message: "network is required.",
+        });
+    }
+
+    if (sraConfigVersion !== undefined && (!Number.isInteger(sraConfigVersion) || sraConfigVersion < 0)) {
+        return res.status(400).json({
+            success: false,
+            message: "sraConfigVersion must be a non-negative integer.",
         });
     }
 

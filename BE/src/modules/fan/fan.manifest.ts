@@ -1,3 +1,5 @@
+import { SRA_CHAINS, SRA_TOKEN_SYMBOLS } from "./sra.assets";
+
 export default {
 
     version: 1,
@@ -116,7 +118,7 @@ export default {
 
         ],
 
-        supportedChains: [
+        legacySupportedChains: [
 
             {
 
@@ -465,7 +467,9 @@ export default {
 
         ],
 
-        supportedTokens: [
+        supportedChains: SRA_CHAINS,
+
+        legacySupportedTokens: [
 
             "ETH",
             "WETH",
@@ -476,6 +480,8 @@ export default {
             "USDC.e",
 
         ],
+
+        supportedTokens: SRA_TOKEN_SYMBOLS,
 
         paymentMethods: [
 

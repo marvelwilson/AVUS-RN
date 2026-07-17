@@ -9,7 +9,7 @@ export default function AuthLoading() {
   const muted = useThemeColor({}, "subtext");
   const border = useThemeColor({}, "border");
   const secondary = useThemeColor({}, "secondary");
-  const logo = require("@/assets/images/icon.png");
+  const logo = require("@/assets/images/icon.jpg");
 
   return (
     <View style={[styles.container, { backgroundColor: background }]} accessibilityLabel="AVUS is securing your wallet session">

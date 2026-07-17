@@ -1,4 +1,4 @@
-import { arbitrum, base, optimism } from "viem/chains";
+import { arbitrum, avalanche, base, bsc, mainnet, optimism, polygon } from "viem/chains";
 
 import { getIntentClient } from "./client";
 
@@ -18,6 +18,14 @@ export async function getCAB(
             base.id,
 
             optimism.id,
+
+            mainnet.id,
+
+            polygon.id,
+
+            bsc.id,
+
+            avalanche.id,
 
         ],
 

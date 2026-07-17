@@ -19,6 +19,8 @@ export interface IWallet extends Document {
 
     smartAccountAddress?: string;
 
+    sraConfigVersion: number;
+
     network: WalletNetwork;
 
     isPrimary: boolean;
@@ -76,6 +78,11 @@ const walletSchema = new Schema<IWallet>(
         isDeployed: {
             type: Boolean,
             default: false,
+        },
+
+        sraConfigVersion: {
+            type: Number,
+            default: 0,
         },
         monitoringStatus: {
             type: String,

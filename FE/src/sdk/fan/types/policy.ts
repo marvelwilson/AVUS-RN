@@ -4,7 +4,19 @@ export interface FanChainPolicy {
     chainId?: number;
     nativeToken?: string;
     enabled: boolean;
+    receiveEnabled?: boolean;
+    sendEnabled?: boolean;
     supportedTokens: string[];
+    tokens: {
+        symbol: string;
+        address: `0x${string}`;
+        sdkTokenType?: string;
+    }[];
+    sendTokens?: {
+        symbol: string;
+        address: `0x${string}`;
+        sdkTokenType?: string;
+    }[];
 }
 
 export interface FanPolicy {

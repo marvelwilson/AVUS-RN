@@ -6,6 +6,7 @@ import walletApi from "@/src/api/wallet.api";
 import { magic } from "@/src/sdk/magic";
 
 import SmartRoutingService from "@/src/sdk/zerodev";
+import { SRA_CONFIG_VERSION } from "@/src/sdk/zerodev/constants";
 
 import {
 
@@ -54,7 +55,7 @@ class WalletService {
         let sra =
             existing?.smartAccountAddress;
 
-        if (!sra) {
+        if (!sra || existing?.sraConfigVersion !== SRA_CONFIG_VERSION) {
 
             const created =
                 await SmartRoutingService.getOrCreate(
@@ -74,6 +75,9 @@ class WalletService {
 
                 network:
                     "ARBITRUM",
+
+                sraConfigVersion:
+                    SRA_CONFIG_VERSION,
 
             });
 

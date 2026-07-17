@@ -9,3 +9,5 @@ export const ZERODEV = {
     defaultSlippage: 5000,
 
 };
+
+export const SRA_CONFIG_VERSION = 2;

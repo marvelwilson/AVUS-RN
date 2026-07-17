@@ -5,20 +5,26 @@ import QRCode from "react-native-qrcode-svg";
 import { Copy, Share2, ShieldCheck } from "lucide-react-native";
 
 import {
+  ActivityIndicator,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import { useEffect, useState } from "react";
 
 import { useThemeColor } from "@/src/components/Themed";
 import ScreenHeader from "@/src/components/transaction/ScreenHeader";
 import { useWallet } from "@/src/hooks/useWallet";
 import { AddressType } from "@/src/sdk/zerodev";
 import { StatusModal } from "@/src/store/status-modal";
+import PolicyManager from "@/src/sdk/fan/policy/manager";
+import type { FanChainPolicy } from "@/src/sdk/fan/types/policy";
 
 export default function Receive() {
+  const [chains, setChains] = useState<FanChainPolicy[]>([]);
+  const [loadingChains, setLoadingChains] = useState(true);
   const {
 
     receive,
@@ -34,6 +40,15 @@ export default function Receive() {
   const card = useThemeColor({}, "card");
   const primary = useThemeColor({}, "primary");
   const border = useThemeColor({}, "border");
+
+  useEffect(() => {
+    void (async () => {
+      const manifest = PolicyManager.get() ?? await PolicyManager.load();
+      setChains(manifest.assets.supportedChains.filter((chain) => chain.enabled && chain.receiveEnabled));
+    })().catch((error) => {
+      console.error("Unable to load SRA receive policy", error);
+    }).finally(() => setLoadingChains(false));
+  }, []);
 
   async function copyAddress() {
     if (!SmartAccountAddress) return;
@@ -113,6 +128,31 @@ export default function Receive() {
           >
             Receive crypto from any supported blockchain using one address.
           </Text>
+        </View>
+
+        <View style={styles.supportedSection}>
+          <Text style={[styles.sectionTitle, { color: text }]}>Supported networks & tokens</Text>
+          <Text style={[styles.sectionSubtitle, { color: subtext }]}>Only send the tokens listed for each network to this address.</Text>
+          {loadingChains ? <ActivityIndicator color={primary} /> : chains.map((chain) => (
+            <View key={chain.id} style={[styles.chainCard, { backgroundColor: card, borderColor: border }]}>
+              <View style={styles.chainHeader}>
+                <Text style={[styles.chainName, { color: text }]}>{chain.name}</Text>
+                <Text style={[styles.chainId, { color: subtext }]}>Chain {chain.chainId}</Text>
+              </View>
+              <View style={styles.tokenList}>
+                {chain.tokens.map((token) => (
+                  <View key={`${chain.id}-${token.symbol}`} style={[styles.tokenChip, { borderColor: border }]}>
+                    <Text style={[styles.tokenSymbol, { color: text }]}>{token.symbol}</Text>
+                    <Text selectable style={[styles.tokenAddress, { color: subtext }]}>
+                      {token.address === "0x0000000000000000000000000000000000000000"
+                        ? "Native"
+                        : token.address}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          ))}
         </View>
 
         <View
@@ -319,4 +359,15 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     fontSize: 14,
   },
+  supportedSection: { marginTop: 24, gap: 12 },
+  sectionTitle: { fontSize: 18, fontWeight: "700" },
+  sectionSubtitle: { fontSize: 14, lineHeight: 20, marginBottom: 4 },
+  chainCard: { borderWidth: 1, borderRadius: 18, padding: 16, gap: 12 },
+  chainHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  chainName: { fontSize: 16, fontWeight: "700" },
+  chainId: { fontSize: 12 },
+  tokenList: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  tokenChip: { borderWidth: 1, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 8 },
+  tokenSymbol: { fontSize: 13, fontWeight: "700" },
+  tokenAddress: { fontSize: 10, marginTop: 2, maxWidth: 280 },
 });

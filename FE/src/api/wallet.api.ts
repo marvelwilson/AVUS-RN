@@ -15,6 +15,8 @@ export interface Wallet {
 
     network: WalletNetwork;
 
+    sraConfigVersion?: number;
+
 }
 
 export interface RegisterWalletRequest {
@@ -24,6 +26,8 @@ export interface RegisterWalletRequest {
     smartAccountAddress: string;
 
     network: WalletNetwork;
+
+    sraConfigVersion: number;
 
 }
 

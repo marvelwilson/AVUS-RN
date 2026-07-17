@@ -5,6 +5,7 @@ import type {
     FanChatResponse,
 
 } from "@/src/sdk/fan/types/chats";
+import type { FanPolicy } from "@/src/sdk/fan/types/policy";
 class FanApi {
 
     /**
@@ -12,7 +13,7 @@ class FanApi {
      */
     manifest() {
 
-        return api.get("/fan/manifest");
+        return api.get<{ success: boolean; data: FanPolicy }>("/fan/manifest");
 
     }
 

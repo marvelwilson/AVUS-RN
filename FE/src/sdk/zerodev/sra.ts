@@ -39,6 +39,11 @@ class SmartRoutingService {
             value: FLEX.NATIVE_AMOUNT,
         })
 
+        const routedTokenAction = {
+            action: [transferToOwnerCall],
+            fallBack: [transferToOwnerCall],
+        };
+
         return createSmartRoutingAddress({
 
             owner,
@@ -65,6 +70,14 @@ class SmartRoutingService {
 
                 },
 
+                WETH: routedTokenAction,
+
+                USDT: routedTokenAction,
+
+                DAI: routedTokenAction,
+
+                WBTC: routedTokenAction,
+
                 WRAPPED_NATIVE: {
 
                     action: [transferToOwnerCall],
@@ -84,6 +97,8 @@ class SmartRoutingService {
             },
 
             srcTokens: SUPPORTED_SOURCE_TOKENS,
+
+            allowPartialRoutes: true,
 
         });
 
