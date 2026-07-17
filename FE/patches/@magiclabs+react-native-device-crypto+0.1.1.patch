@@ -1,0 +1,22 @@
+diff --git a/node_modules/@magiclabs/react-native-device-crypto/android/build.gradle b/node_modules/@magiclabs/react-native-device-crypto/android/build.gradle
+index 8eb758e..b02dd09 100644
+--- a/node_modules/@magiclabs/react-native-device-crypto/android/build.gradle
++++ b/node_modules/@magiclabs/react-native-device-crypto/android/build.gradle
+@@ -3,7 +3,7 @@ buildscript {
+         repositories {
+             google()
+             mavenCentral()
+-            jcenter()
++            
+         }
+ 
+         dependencies {
+@@ -52,7 +52,7 @@ repositories {
+     }
+     google()
+     mavenCentral()
+-    jcenter()
++    
+ }
+ 
+ dependencies {

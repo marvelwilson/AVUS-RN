@@ -1,0 +1,9 @@
+{
+  "typescript.suggest.autoImports": true,
+  "javascript.suggest.autoImports": true,
+  "typescript.validate.enable": true,
+  "javascript.validate.enable": true,
+  "typescript.preferences.includePackageJsonAutoImports": "auto",
+  "typescript.tsserver.maxTsServerMemory": 2048,
+  "js/ts.tsdk.path": "node_modules\\typescript\\lib"
+}

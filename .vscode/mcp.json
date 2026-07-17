@@ -1,9 +1,0 @@
-{
-	"servers": {
-		"MagicLabs": {
-			"url": "https://docs.magic.link/mcp",
-			"type": "http"
-		}
-	},
-	"inputs": []
-}

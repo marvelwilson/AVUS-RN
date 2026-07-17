@@ -1,0 +1,1 @@
+export type LoginMethod = | "google" | "email";

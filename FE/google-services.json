@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "207475743616",
+    "project_id": "avus-wallet-22217",
+    "storage_bucket": "avus-wallet-22217.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:207475743616:android:3c8ca4c640b15502903f65",
+        "android_client_info": {
+          "package_name": "com.avus.wallet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGRBTEGqUCmUeymOFPfnTKhc1hDs33AxU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
