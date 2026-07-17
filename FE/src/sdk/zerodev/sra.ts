@@ -21,27 +21,27 @@ class SmartRoutingService {
     /**
      * Get / Create Smart Routing Address
      */
-    async getOrCreate(owner: AddressType) {
+    async getOrCreate(owner: AddressType, cabAddress: AddressType) {
 
-        const transferToOwnerCall = createCall({
+        const transferToCabCall = createCall({
             target: FLEX.TOKEN_ADDRESS,
             value: 0n,
             abi: erc20Abi,
             functionName: "transfer",
             args: [
-                owner,
+                cabAddress,
                 FLEX.AMOUNT,
             ],
         });
 
         const transferNativeCall = createCall({
-            target: owner,
+            target: cabAddress,
             value: FLEX.NATIVE_AMOUNT,
         })
 
         const routedTokenAction = {
-            action: [transferToOwnerCall],
-            fallBack: [transferToOwnerCall],
+            action: [transferToCabCall],
+            fallBack: [transferToCabCall],
         };
 
         return createSmartRoutingAddress({
@@ -56,17 +56,17 @@ class SmartRoutingService {
 
                 ERC20: {
 
-                    action: [transferToOwnerCall],
+                    action: [transferToCabCall],
 
-                    fallBack: [transferToOwnerCall],
+                    fallBack: [transferToCabCall],
 
                 },
 
                 USDC: {
 
-                    action: [transferToOwnerCall],
+                    action: [transferToCabCall],
 
-                    fallBack: [transferToOwnerCall],
+                    fallBack: [transferToCabCall],
 
                 },
 
@@ -80,9 +80,9 @@ class SmartRoutingService {
 
                 WRAPPED_NATIVE: {
 
-                    action: [transferToOwnerCall],
+                    action: [transferToCabCall],
 
-                    fallBack: [transferToOwnerCall],
+                    fallBack: [transferToCabCall],
 
                 },
 
@@ -129,6 +129,23 @@ class SmartRoutingService {
 
         });
 
+    }
+
+    async withdraw(smartRoutingAddress: AddressType) {
+        const status = await this.status(smartRoutingAddress);
+        const seen = new Set<string>();
+        const tokens = status.deposits.flatMap(({ deposit }) => {
+            const key = `${deposit.chainId}:${deposit.token.toLowerCase()}`;
+            if (seen.has(key)) return [];
+            seen.add(key);
+            return [{ chainId: deposit.chainId, token: deposit.token }];
+        });
+
+        if (!tokens.length) {
+            throw new Error("No SRA deposits are available to withdraw.");
+        }
+
+        return this.withdrawCalls(smartRoutingAddress, tokens);
     }
 
     async portfolio(

@@ -10,9 +10,10 @@ import { SRA_CONFIG_VERSION } from "@/src/sdk/zerodev/constants";
 
 import {
 
-    getPortfolio
+    getPortfolio,
 
 } from "@/src/sdk/intent";
+import { getIntentAccountAddress } from "@/src/sdk/intent/client";
 
 
 import {
@@ -40,30 +41,26 @@ class WalletService {
      */
     async initialize() {
 
-        if (useWalletStore.getState().initialized) {
-
-            return this.refresh();
-
-        }
-
         const eoa = await getWalletAddress();
+
+        const kernel = await getIntentAccountAddress();
 
 
         const existing =
             await walletApi.getWallet();
 
-        let sra =
-            existing?.smartAccountAddress;
+        const created =
+            await SmartRoutingService.getOrCreate(
+                eoa,
+                kernel,
+            );
 
-        if (!sra || existing?.sraConfigVersion !== SRA_CONFIG_VERSION) {
+        const sra = created.smartRoutingAddress;
 
-            const created =
-                await SmartRoutingService.getOrCreate(
-                    eoa,
-                );
+        const backendSra = existing?.smartAccountAddress?.toLowerCase();
+        const resolvedSra = sra.toLowerCase();
 
-            sra =
-                created.smartRoutingAddress;
+        if (backendSra !== resolvedSra || existing?.sraConfigVersion !== SRA_CONFIG_VERSION) {
 
             await walletApi.register({
 
@@ -98,6 +95,8 @@ class WalletService {
                 eoa,
 
                 sra,
+
+                kernel,
 
             });
 

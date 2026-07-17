@@ -17,6 +17,8 @@ export interface Wallet {
 
     sraConfigVersion?: number;
 
+    isPrimary?: boolean;
+
 }
 
 export interface RegisterWalletRequest {
@@ -47,9 +49,11 @@ class WalletApi {
     async getWallet() {
 
         const { data } =
-            await api.get("/wallet");
+            await api.get<{ success: boolean; data: Wallet[] }>("/wallet");
 
-        return data.data as Wallet | null;
+        return data.data.find((wallet) => wallet.isPrimary)
+            ?? data.data[0]
+            ?? null;
 
     }
 

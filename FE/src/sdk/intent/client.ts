@@ -98,6 +98,11 @@ export async function getIntentClient() {
   return cachedClient;
 }
 
+export async function getIntentAccountAddress() {
+  const client = await getIntentClient();
+  return client.account.address;
+}
+
 export function resetIntentClient() {
   cachedClient = undefined;
 }
