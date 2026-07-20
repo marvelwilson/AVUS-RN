@@ -30,6 +30,8 @@ export const env = {
 
     GROK_API_KEY: process.env.GROK_API_KEY!,
 
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY!,
+
     ALCHEMY_NOTIFY_TOKEN: process.env.ALCHEMY_NOTIFY_TOKEN || "",
 
     ALCHEMY_WEBHOOK_IDS: process.env.ALCHEMY_WEBHOOK_IDS || "{}",

@@ -25,30 +25,28 @@ class SendAction implements FanAction {
         const args =
             intent.arguments;
 
-        let recipient =
-            args.recipient as string | undefined;
+        let address =
+            args.address as string | undefined;
 
-        /**
-         * Clipboard
-         */
+        console.log(arg)
         if (
-            recipient === "clipboard"
+            address === "clipboard"
         ) {
 
-            recipient =
+            address =
                 await Clipboard.getStringAsync();
             useFanDraftStore
                 .getState()
                 .merge({
 
-                    recipient: recipient,
+                    address: address,
 
                 });
         }
 
         FanRouter.send({
 
-            recipient,
+            address,
 
             amount:
                 args.amount,

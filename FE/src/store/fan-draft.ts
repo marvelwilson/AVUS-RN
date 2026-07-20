@@ -37,49 +37,37 @@ export interface FanMessage {
 
 export interface FanDraft {
 
-    /**
-     * Current workflow
-     */
     intent?: FanIntent;
 
-    /**
-     * SEND / RECEIVE
-     */
-    recipient?: string;
+    address?: string;
 
-    /**
-     * BUY / SELL / SEND / SWAP
-     */
+    tokenAddress?: string;
+
     amount?: number;
 
-    /**
-     * SEND
-     */
     token?: string;
+    
+    network?: string;
 
-    chain?: string;
+    chainId?: number;
 
-    /**
-     * BUY
-     */
+    decimals?: number;
+
+    usdBalance?: number;
+
+    tokenPrice?: number;
+
+    destinationUsd?: number;
+
+    fiat?: string;
+
     paymentMethod?: string;
 
-    /**
-     * SELL
-     */
     withdrawalMethod?: string;
 
-    /**
-     * SWAP
-     */
     fromToken?: string;
 
     toToken?: string;
-
-    /**
-     * BUY / SELL
-     */
-    fiat?: string;
 
 }
 

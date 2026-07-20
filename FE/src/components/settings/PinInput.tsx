@@ -1,9 +1,9 @@
 import { useEffect, useRef } from "react";
 import {
-    Pressable,
-    StyleSheet,
-    TextInput,
-    View,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  View,
 } from "react-native";
 
 import { useThemeColor } from "@/src/components/Themed";
@@ -28,10 +28,12 @@ export default function PinInput({
   const card = useThemeColor({}, "card");
 
   useEffect(() => {
-    if (autoFocus) {
-      setTimeout(() => inputRef.current?.focus(), 150);
-    }
-  }, []);
+    if (!autoFocus) return;
+
+    requestAnimationFrame(() => {
+      inputRef.current?.focus();
+    });
+  }, [autoFocus]);
 
   return (
     <Pressable
@@ -41,13 +43,14 @@ export default function PinInput({
       <TextInput
         ref={inputRef}
         value={value}
-        onChangeText={(txt) =>
-          onChange(txt.replace(/\D/g, "").slice(0, length))
+        onChangeText={(text) =>
+          onChange(text.replace(/\D/g, "").slice(0, length))
         }
         keyboardType="number-pad"
+        inputMode="numeric"
         maxLength={length}
+        showSoftInputOnFocus
         caretHidden
-        secureTextEntry
         style={styles.hiddenInput}
       />
 
@@ -91,7 +94,9 @@ const styles = StyleSheet.create({
 
   hiddenInput: {
     position: "absolute",
-    opacity: 0,
+    width: 1,
+    height: 1,
+    opacity: 0.01,
   },
 
   boxContainer: {

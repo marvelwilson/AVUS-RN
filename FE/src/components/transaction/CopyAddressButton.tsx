@@ -31,7 +31,7 @@ export default function CopyAddressButton({
 
     setTimeout(() => {
       setCopied(false);
-    }, 2000);
+    }, 200);
   }
 
   const shortAddress =
@@ -95,7 +95,7 @@ export default function CopyAddressButton({
           />
         )}
 
-        <Text style={styles.buttonText}>
+        <Text style={[styles.buttonText, {color: text}]}>
           {copied ? "Copied" : "Copy"}
         </Text>
       </Pressable>
@@ -137,7 +137,6 @@ const styles = StyleSheet.create({
   },
 
   buttonText: {
-    color: "#fff",
     fontWeight: "700",
     marginLeft: 8,
   },

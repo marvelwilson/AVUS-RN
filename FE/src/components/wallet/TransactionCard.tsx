@@ -1,9 +1,11 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { router } from "expo-router";
 import { ChevronRight } from "lucide-react-native";
-
+import { useEffect } from "react";
 import Card from "../Card";
-// import { Transaction } from "../../services/blockchain/transactions";
+import {
+  getIntentStatus,
+} from "@/src/sdk/intent";
 
 interface Props {
   tx: any;
@@ -21,7 +23,22 @@ export default function TransactionCard({ tx }: Props) {
 
   const shortAddr = (addr?: string) =>
     !addr ? "Unknown wallet" :
-    `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+      `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+
+  useEffect(() => {
+    if (!tx.intentId) return;
+
+    const loadStatus = async () => {
+      try {
+        const status = await getIntentStatus(tx.intentId);
+        console.log("Intent Status:", status);
+      } catch (err) {
+        console.error("Failed to fetch intent status:", err);
+      }
+    };
+
+    loadStatus();
+  }, [tx.intentId]);
 
   return (
     <Card style={styles.card} padded={false}>

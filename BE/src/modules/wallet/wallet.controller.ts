@@ -12,7 +12,7 @@ class WalletController {
             });
         }
 
-        const { embeddedAddress, smartAccountAddress, network, sraConfigVersion } =
+        const { embeddedAddress, smartAccountAddress, kernelAddress, network, sraConfigVersion } =
             req.body;
 
         const wallet = await walletService.register(
@@ -20,6 +20,7 @@ class WalletController {
             {
                 embeddedAddress,
                 smartAccountAddress,
+                kernelAddress,
                 network,
                 sraConfigVersion,
             }

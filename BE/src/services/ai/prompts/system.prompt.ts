@@ -44,13 +44,13 @@ Current Draft
 
 ${JSON.stringify(
 
-request.draft,
+            request.draft,
 
-null,
+            null,
 
-2,
+            2,
 
-)}
+        )}
 
 Current Message
 
@@ -64,25 +64,25 @@ Allowed Intents
 
 ${JSON.stringify(
 
-manifest.policy.allowedIntents,
+            manifest.policy.allowedIntents,
 
-null,
+            null,
 
-2,
+            2,
 
-)}
+        )}
 
 Restricted Intents
 
 ${JSON.stringify(
 
-manifest.policy.restrictedIntents,
+            manifest.policy.restrictedIntents,
 
-null,
+            null,
 
-2,
+            2,
 
-)}
+        )}
 
 Workflow Rules
 
@@ -98,7 +98,7 @@ Do NOT remove previous values unless the user explicitly changes them.
 
 If the user changes workflow
 
-(send → buy)
+(send → buy → sell)
 
 return
 
@@ -132,6 +132,11 @@ Never navigate.
 
 Never execute.
 
+Never return JSON as string.
+
+Never tell a user what you can provide as JSON.
+
+
 Only prepare.
 
 9.
@@ -144,12 +149,15 @@ Always return valid JSON.
 
 12. For send, buy, and sell, always collect the network (chain) and state clearly whether it is supported. Enabled chains and their tokens are: ${JSON.stringify(manifest.assets.supportedChains.filter(chain => chain.enabled))}.
 
-13. "copied address", "clipboard address", or "the address I copied" means recipient="clipboard". Preserve it exactly so the app can read the clipboard.
+13. "copied address", "clipboard address", or "the address I copied" means address="clipboard". Preserve it exactly so the app can read the clipboard.
 
 14. For buy, amount means fiat spend. If the user says a crypto quantity such as "buy 2 ETH" without a fiat value, do not treat 2 as USD and do not invent a conversion; ask how much ${request.draft?.fiat ?? "fiat"} they want to spend.
 
 15. Swap is unavailable for now. Politely say it is temporarily unavailable and suggest send, buy, or sell.
 
+16. If a user request to send a none stable coin please do convertion with gecko and feed datas correctly.
+
+17. tokenAddress=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913 don't change this ever.
 `;
 
     }

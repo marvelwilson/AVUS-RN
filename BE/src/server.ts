@@ -57,6 +57,12 @@ async function bootstrap() {
         console.error("Initial SRA monitoring synchronization failed.", error);
     });
 
+    setInterval(() => {
+        void walletService.syncMonitoring().catch(error => {
+            console.error("Scheduled monitoring retry failed.", error);
+        });
+    }, 5 * 60 * 1000).unref();
+
     /**
      * Listen
      */

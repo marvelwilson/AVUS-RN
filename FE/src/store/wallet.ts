@@ -1,12 +1,7 @@
 import { create } from "zustand";
 
-import type {
-
-    ChainAbstractedBalance,
-
-    AddressType,
-
-} from "@/src/sdk/zerodev/types";
+import type { AddressType } from "@/src/sdk/zerodev/types";
+import type { CABAsset } from "@/src/sdk/intent/types";
 
 import type {
 
@@ -22,7 +17,7 @@ interface WalletState {
 
     kernel: AddressType | null;
 
-    balances: ChainAbstractedBalance[];
+    balances: CABAsset[];
 
     totalUsd: number;
 
@@ -46,7 +41,7 @@ interface WalletState {
 
     updatePortfolio(data: {
 
-        balances: ChainAbstractedBalance[];
+        balances: CABAsset[];
 
         totalUsd?: number;
 

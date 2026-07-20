@@ -1,29 +1,30 @@
 import { api } from "@/src/lib/axios";
 
-export interface CreateTransactionRequest {
+export interface TransactionAsset {
+    network: string;
+    chainId: number;
+    token: string;
+    symbol?: string;
+}
 
+export interface CreateTransactionRequest {
     type: string;
 
-    source: string;
-
-    network: string;
-
-    chainId: number;
-
-    token: string;
+    source?: string;
 
     amount: string;
 
     sender?: string;
-
     recipient?: string;
 
-    metadata?: Record<string, any>;
+    sourceAsset?: TransactionAsset;
 
+    destinationAsset: TransactionAsset;
+
+    metadata?: Record<string, any>;
 }
 
 export interface UpdateTransactionRequest {
-
     status: string;
 
     txHash?: string;
@@ -31,27 +32,28 @@ export interface UpdateTransactionRequest {
     intentId?: string;
 
     metadata?: Record<string, any>;
-
 }
 
 class TransactionApi {
 
     /**
-     * Create
+     * Create transaction
      */
-    create(
-        data: CreateTransactionRequest,
-    ) {
+    async create(data: CreateTransactionRequest) {
+
+        console.log(
+            "POST /transactions",
+            JSON.stringify(data, null, 2),
+        );
 
         return api.post(
             "/transactions",
             data,
         );
-
     }
 
     /**
-     * History
+     * Transaction history
      */
     list(
         cursor?: string,
@@ -61,35 +63,26 @@ class TransactionApi {
         return api.get(
             "/transactions",
             {
-
                 params: {
-
                     cursor,
-
                     limit,
-
                 },
-
             },
         );
-
     }
 
     /**
-     * Single
+     * Single transaction
      */
-    get(
-        id: string,
-    ) {
+    get(id: string) {
 
         return api.get(
             `/transactions/${id}`,
         );
-
     }
 
     /**
-     * Status
+     * Update transaction status
      */
     update(
         id: string,
@@ -100,9 +93,7 @@ class TransactionApi {
             `/transactions/${id}/status`,
             data,
         );
-
     }
-
 }
 
 export default new TransactionApi();

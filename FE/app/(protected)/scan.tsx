@@ -23,6 +23,7 @@ export default function ScanScreen() {
   const text = useThemeColor({}, "text");
   const card = useThemeColor({}, "card");
   const primary = useThemeColor({}, "primary");
+  const secondary = useThemeColor({}, "secondary");
 
   if (!permission) {
     return (
@@ -34,7 +35,7 @@ export default function ScanScreen() {
           },
         ]}
       >
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color={secondary} />
       </View>
     );
   }
@@ -78,7 +79,7 @@ export default function ScanScreen() {
             },
           ]}
         >
-          <Text style={styles.buttonText}>
+          <Text style={[styles.buttonText, { color: card }]}>
             Continue
           </Text>
         </Pressable>
@@ -98,7 +99,7 @@ export default function ScanScreen() {
       .getState()
       .merge({
 
-        recipient: data,
+        address: data,
 
       });
     router.push({
@@ -137,12 +138,12 @@ export default function ScanScreen() {
           {torchEnabled ? (
             <Flashlight
               size={22}
-              color="#fff"
+              color={card}
             />
           ) : (
             <FlashlightOff
               size={22}
-              color="#fff"
+              color={card}
             />
           )}
         </Pressable>
@@ -153,7 +154,7 @@ export default function ScanScreen() {
         <View style={styles.loading}>
           <ActivityIndicator
             size="large"
-            color="#fff"
+            color={secondary}
           />
         </View>
       )}
@@ -180,6 +181,7 @@ const styles = StyleSheet.create({
   },
 
   permissionTitle: {
+    textAlign: "center",
     marginTop: 25,
     fontSize: 24,
     fontWeight: "700",
@@ -203,7 +205,6 @@ const styles = StyleSheet.create({
   },
 
   buttonText: {
-    color: "#fff",
     fontSize: 16,
     fontWeight: "700",
   },

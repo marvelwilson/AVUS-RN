@@ -23,6 +23,8 @@ import { useThemeColor } from "@/src/components/Themed";
 import PolicyManager from "@/src/sdk/fan/policy/manager";
 import conversationService from "@/src/sdk/fan/services/conversation.service";
 import STTService from "@/src/sdk/fan/services/stt.service";
+import { Keyboard } from "react-native";
+
 type Props = {
   visible: boolean;
   onClose: () => void;
@@ -59,11 +61,6 @@ export default function FanChatSheet({
       duration: 250,
       useNativeDriver: true,
     }).start(() => {
-      /**
-       * Clear the conversation + any in-progress intent draft
-       * once the sheet has fully closed, so re-opening always
-       * starts fresh instead of resuming a stale flow.
-       */
       if (!visible) {
         setMessages([]);
         setMessage("");
@@ -77,11 +74,6 @@ export default function FanChatSheet({
       return;
     }
 
-    /**
-     * Push the scroll position to the newest message whenever
-     * the list grows, so the latest message is always visible
-     * while still letting the user scroll up manually.
-     */
     requestAnimationFrame(() => {
       scrollRef.current?.scrollToEnd({ animated: true });
     });
@@ -140,6 +132,15 @@ export default function FanChatSheet({
 
   const suggestions = policy?.ui.suggestions
 
+  useEffect(() => {
+    const show = Keyboard.addListener("keyboardDidShow", () => {
+      requestAnimationFrame(() => {
+        scrollRef.current?.scrollToEnd({ animated: true });
+      });
+    });
+
+    return () => show.remove();
+  }, []);
   return (
     <Modal
       visible={visible}
@@ -160,157 +161,215 @@ export default function FanChatSheet({
             },
           ]}
         >
-          <Pressable>
-            <View style={styles.handle} />
+          <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            keyboardVerticalOffset={20}
+          >
+            <View style={{ flex: 1 }}>
+              {/* Handle */}
+              <View style={styles.handle} />
 
-            <View style={styles.header}>
-              <View style={styles.titleRow}>
-                <Sparkles
-                  color={secondary}
-                  size={22}
-                />
+              {/* Header */}
+              <View style={styles.header}>
+                <View style={styles.titleRow}>
+                  <Sparkles
+                    color={secondary}
+                    size={22}
+                  />
 
-                <Text
-                  style={[
-                    styles.title,
-                    {
-                      color: text,
-                    },
-                  ]}
-                >
-                  FAN Assistant
-                </Text>
+                  <Text
+                    style={[
+                      styles.title,
+                      {
+                        color: text,
+                      },
+                    ]}
+                  >
+                    FAN Assistant
+                  </Text>
+                </View>
+
+                <Pressable onPress={onClose}>
+                  <X
+                    size={22}
+                    color={text}
+                  />
+                </Pressable>
               </View>
 
-              <Pressable onPress={onClose}>
-                <X
-                  size={22}
-                  color={text}
-                />
-              </Pressable>
-            </View>
+              <Text
+                style={[
+                  styles.subtitle,
+                  {
+                    color: sub,
+                  },
+                ]}
+              >
+                Ask anything or execute wallet commands.
+              </Text>
 
-            <Text
-              style={[
-                styles.subtitle,
-                {
-                  color: sub,
-                },
-              ]}
-            >
-              Ask anything or execute wallet commands.
-            </Text>
+              {/* Scrollable Area */}
+              <ScrollView
+                ref={scrollRef}
+                style={styles.chat}
+                keyboardShouldPersistTaps="handled"
+                keyboardDismissMode="interactive"
+                contentContainerStyle={[
+                  styles.chatContent,
+                  {
+                    paddingHorizontal: 24,
+                  },
+                ]}
+                onContentSizeChange={() =>
+                  scrollRef.current?.scrollToEnd({ animated: true })
+                }
+              >
+                <View style={styles.suggestionContainer}>
+                  {suggestions?.map((item: any) => (
+                    <Pressable
+                      key={item}
+                      onPress={() => setMessage(item)}
+                      style={[
+                        styles.chip,
+                        {
+                          backgroundColor: card,
+                          borderColor: border,
+                        },
+                      ]}
+                    >
+                      <Text
+                        style={{
+                          color: text,
+                          fontSize: 13,
+                          fontWeight: "600",
+                        }}
+                      >
+                        {item}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
 
-            <View style={styles.suggestionContainer}>
-              {suggestions?.map((item: any) => (
-                <Pressable
-                  key={item}
-                  onPress={() => setMessage(item)}
+                {messages.length === 0 ? (
+                  <Text
+                    style={[
+                      styles.emptyChat,
+                      {
+                        color: sub,
+                      },
+                    ]}
+                  >
+                    Your conversation with FAN will stay here.
+                  </Text>
+                ) : (
+                  messages.map((item) => (
+                    <View
+                      key={item.id}
+                      style={[
+                        styles.bubble,
+                        item.role === "user"
+                          ? styles.userBubble
+                          : styles.fanBubble,
+                        {
+                          backgroundColor:
+                            item.role === "user"
+                              ? secondary
+                              : card,
+                        },
+                      ]}
+                    >
+                      <Text
+                        style={{
+                          color:
+                            item.role === "user"
+                              ? "#fff"
+                              : text,
+                        }}
+                      >
+                        {item.text}
+                      </Text>
+                    </View>
+                  ))
+                )}
+
+                {sending && (
+                  <Text
+                    style={[
+                      styles.thinking,
+                      {
+                        color: sub,
+                      },
+                    ]}
+                  >
+                    FAN is thinking…
+                  </Text>
+                )}
+              </ScrollView>
+
+              {/* Fixed Footer */}
+              <View style={styles.footer}>
+                <View
                   style={[
-                    styles.chip,
+                    styles.inputContainer,
                     {
                       backgroundColor: card,
                       borderColor: border,
                     },
                   ]}
                 >
-                  <Text
-                    style={{
-                      color: text,
-                      fontSize: 13,
-                      fontWeight: "600",
-                    }}
-                  >
-                    {item}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
-
-            <ScrollView
-              ref={scrollRef}
-              style={styles.chat}
-              contentContainerStyle={styles.chatContent}
-              onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}
-            >
-              {messages.length === 0 ? (
-                <Text style={[styles.emptyChat, { color: sub }]}>Your conversation with FAN will stay here.</Text>
-              ) : messages.map((item) => (
-                <View
-                  key={item.id}
-                  style={[
-                    styles.bubble,
-                    item.role === "user" ? styles.userBubble : styles.fanBubble,
-                    { backgroundColor: item.role === "user" ? secondary : card },
-                  ]}
-                >
-                  <Text style={{ color: item.role === "user" ? "#fff" : text }}>{item.text}</Text>
-                </View>
-              ))}
-              {sending ? <Text style={[styles.thinking, { color: sub }]}>FAN is thinking…</Text> : null}
-            </ScrollView>
-
-            <KeyboardAvoidingView
-              behavior={
-                Platform.OS === "ios"
-                  ? "padding"
-                  : undefined
-              }
-            >
-              <View
-                style={[
-                  styles.inputContainer,
-                  {
-                    backgroundColor: card,
-                    borderColor: border,
-                  },
-                ]}
-              >
-                <TextInput
-                  value={message}
-                  onChangeText={setMessage}
-                  placeholder="Ask FAN..."
-                  placeholderTextColor={sub}
-                  multiline
-                  editable={!sending}
-                  style={[
-                    styles.input,
-                    {
-                      color: text,
-                    },
-                  ]}
-                />
-
-                <View style={styles.actions}>
-
-                  <Pressable
-                    style={[styles.voiceButton, { borderColor: border }]}
-                    onPress={dictate}
-                    disabled={sending || listening}
-                    accessibilityLabel={listening ? "Listening" : "Speak to FAN"}
-                  >
-                    <Mic size={18} color={secondary} />
-                  </Pressable>
-
-                  <Pressable
+                  <TextInput
+                    value={message}
+                    onChangeText={setMessage}
+                    placeholder="Ask FAN..."
+                    placeholderTextColor={sub}
+                    multiline
+                    editable={!sending}
                     style={[
-                      styles.sendButton,
+                      styles.input,
                       {
-                        backgroundColor: secondary,
+                        color: text,
                       },
                     ]}
-                    onPress={() => void submit()}
-                    disabled={sending}
-                  >
-                    <Send
-                      size={18}
-                      color={tabIconDefault}
-                    />
-                  </Pressable>
+                  />
+
+                  <View style={styles.actions}>
+                    <Pressable
+                      style={[
+                        styles.voiceButton,
+                        {
+                          borderColor: border,
+                        },
+                      ]}
+                      onPress={dictate}
+                      disabled={sending || listening}
+                    >
+                      <Mic
+                        size={18}
+                        color={secondary}
+                      />
+                    </Pressable>
+
+                    <Pressable
+                      style={[
+                        styles.sendButton,
+                        {
+                          backgroundColor: secondary,
+                        },
+                      ]}
+                      onPress={() => void submit()}
+                      disabled={sending}
+                    >
+                      <Send
+                        size={18}
+                        color={tabIconDefault}
+                      />
+                    </Pressable>
+                  </View>
                 </View>
               </View>
-            </KeyboardAvoidingView>
-          </Pressable>
+            </View>
+          </KeyboardAvoidingView>
         </Animated.View>
       </Pressable>
     </Modal>
@@ -325,11 +384,11 @@ const styles = StyleSheet.create({
   },
 
   sheet: {
+    flex: 1,
+    marginTop: 80,
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
-    padding: 24,
-    paddingBottom: 34,
-    minHeight: 430,
+    overflow: "hidden",
   },
 
   handle: {
@@ -390,7 +449,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlignVertical: "top",
   },
-
+  footer: {
+    paddingHorizontal: 24,
+    paddingTop: 12,
+    paddingBottom: 20,
+  },
   actions: {
     marginTop: 18,
     justifyContent: "space-between",
@@ -413,8 +476,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  chat: { maxHeight: 220, marginBottom: 16 },
-  chatContent: { gap: 10, paddingVertical: 4 },
+  chat: {
+    flex: 1,
+  },
+
+  chatContent: {
+    paddingBottom: 20,
+    gap: 10,
+  },
   emptyChat: { textAlign: "center", paddingVertical: 18 },
   bubble: { maxWidth: "84%", paddingHorizontal: 14, paddingVertical: 11, borderRadius: 16 },
   userBubble: { alignSelf: "flex-end", borderBottomRightRadius: 5 },

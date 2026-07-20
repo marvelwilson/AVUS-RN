@@ -9,12 +9,12 @@ class FanRouter {
     send(
         params?: Record<string, any>,
     ) {
-
+      console.log(params)
         router.push({
 
             pathname:
 
-                "/send/enterAddress",
+                "/send/confirm",
 
             params,
 
@@ -56,7 +56,7 @@ class FanRouter {
 
         router.push(
 
-            "/(tabs)",
+            "/(tabs)/home",
 
         );
 

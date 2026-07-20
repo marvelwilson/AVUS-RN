@@ -2,6 +2,7 @@ import {
     TransactionBuilder,
 } from "@/src/sdk/transactions";
 import {
+    estimateIntent,
     sendIntent,
     waitForIntent,
 } from "@/src/sdk/intent";
@@ -13,50 +14,85 @@ import type {
     SendTokenInput,
 
 } from "@/src/sdk/transactions";
-
+import { useWalletStore } from "@/src/store/wallet";
 import transactionApi from "@/src/api/transaction.api";
 import { zeroAddress } from "viem";
 import { useSettingsStore } from "@/src/store/settings";
-import { getChainName } from "@/src/constants/chains";
 import PolicyManager from "@/src/sdk/fan/policy/manager";
 
 type TransactionRecord = { _id: string };
 
 class TransactionService {
+    async estimate(input: SendTokenInput) {
+        const { sponsoredGas } = useSettingsStore.getState();
+
+        if (sponsoredGas) {
+            return {
+                sponsored: true,
+                feeToken: "SPONSORED",
+                feeAmount: 0,
+                feeUsd: 0,
+            };
+        }
+
+        console.log(input)
+        const bundle = TransactionBuilder.sendToken(input);
+
+        const estimate = await estimateIntent({
+            ...bundle,
+            gasToken: "USDC",
+        });
+
+        console.log(estimate)
+
+        const feeAmount = estimate.gasPaymentTokens.reduce(
+            (total, token) =>
+                total + Number(token.amount) / Math.pow(10, token.decimals ?? 6),
+            0,
+        );
+
+        return {
+            sponsored: false,
+            feeToken:
+                estimate.gasPaymentTokens[0]?.symbol ??
+                estimate.gasPaymentTokens[0]?.ticker ??
+                "USDC",
+            feeAmount,
+            feeUsd: feeAmount, // replace with price conversion later
+        };
+    }
+
 
     async send(
         input: SendTokenInput,
     ) {
-
-        const from =
-            await WalletService.getAddress();
-
+        console.log(input)
+        const from = useWalletStore.getState().kernel
         /**
          * Create Pending Transaction
          */
-        const { data } =
-            await transactionApi.create({
+        const { data } = await transactionApi.create({
+            type: "SEND",
 
-                type: "SEND",
+            amount: input.amount.toString(),
 
-                source: "MANUAL",
+            sender: from,
 
-                network: getChainName(input.destinationChainId),
+            recipient: input.recipient,
 
-                chainId: input.destinationChainId,
+            destinationAsset: {
+                network: input.destination.network,
+                chainId: input.destination.chainId,
+                token: input.destination.token,
+                symbol: input.destination.symbol,
+            },
 
-                token: input.tokenSymbol ?? (input.token.toLowerCase() === zeroAddress ? "ETH" : input.token),
+            sourceAsset: input.source ? input.source : undefined,
 
-                amount: input.amount.toString(),
-
-                sender: from,
-
-                recipient: input.recipient,
-
-                metadata: { decimals: input.decimals ?? 18 },
-
-            });
-
+            metadata: {
+                decimals: input.decimals,
+            },
+        });
         const transaction =
             data.data as TransactionRecord;
 
@@ -115,7 +151,7 @@ class TransactionService {
             const receipt =
                 await waitForIntent(
 
-                uiHash,
+                    uiHash,
 
                 );
 

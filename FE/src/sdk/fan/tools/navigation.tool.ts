@@ -11,7 +11,6 @@ class NavigationTool implements FanTool {
     async execute(
         args: Record<string, any> = {},
     ) {
-
         switch (args.screen) {
 
             case "send":

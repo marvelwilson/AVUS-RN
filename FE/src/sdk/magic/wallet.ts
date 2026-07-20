@@ -10,5 +10,5 @@ export async function getWalletAddress() {
         throw new Error("Magic wallet not found.");
     }
 
-    return address;
+    return address as `0x${string}`;
 }

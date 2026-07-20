@@ -40,7 +40,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon-white.png",
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#000000",
         "monochromeImage": "./assets/images/icon-white.png"
       },
       "permissions": [
@@ -56,7 +56,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/icon-white.png",
+          "image": "./assets/images/icon-black.png",
           "resizeMode": "contain",
           "backgroundColor": "#FFFFFF",
           "imageWidth": 176,

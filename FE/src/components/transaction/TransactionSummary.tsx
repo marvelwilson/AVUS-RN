@@ -8,6 +8,7 @@ import { useThemeColor } from "@/src/components/Themed";
 import { ArrowUpRight, CheckCircle2, Coins, Wallet } from "lucide-react-native";
 import SummaryRow from "./SummaryRow";
 
+
 type Props = {
   amount: string;
   symbol?: string;

@@ -22,12 +22,6 @@ import {
 
 } from "@/src/sdk/magic";
 
-import type {
-
-    SendTokenInput,
-
-} from "@/src/sdk/transactions";
-
 import {
 
     SUPPORTED_SOURCE_TOKENS,
@@ -59,8 +53,17 @@ class WalletService {
 
         const backendSra = existing?.smartAccountAddress?.toLowerCase();
         const resolvedSra = sra.toLowerCase();
-
-        if (backendSra !== resolvedSra || existing?.sraConfigVersion !== SRA_CONFIG_VERSION) {
+        const backendKernel = existing?.kernelAddress?.toLowerCase();
+        const resolvedKernel = kernel.toLowerCase();
+        console.log({
+            backendSra,
+            resolvedSra,
+            backendKernel,
+            resolvedKernel,
+            backendVersion: existing?.sraConfigVersion,
+            currentVersion: SRA_CONFIG_VERSION,
+        });
+        if (backendSra !== resolvedSra || backendKernel !== resolvedKernel || existing?.sraConfigVersion !== SRA_CONFIG_VERSION) {
 
             await walletApi.register({
 
@@ -69,6 +72,9 @@ class WalletService {
 
                 smartAccountAddress:
                     sra,
+
+                kernelAddress:
+                    kernel,
 
                 network:
                     "ARBITRUM",
@@ -84,7 +90,6 @@ class WalletService {
             await SmartRoutingService.status(
                 sra,
             );
-
         const portfolio =
             await getPortfolio();
 
@@ -165,6 +170,8 @@ class WalletService {
                     sra,
                 ),
 
+
+
             ]);
 
         useWalletStore
@@ -184,6 +191,7 @@ class WalletService {
                     portfolio.totalUsd,
 
             });
+
 
         return {
 

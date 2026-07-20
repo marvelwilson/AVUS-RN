@@ -44,7 +44,6 @@ class TransactionService {
     async create(
         input: CreateTransactionInput,
     ) {
-
         return Transaction.create({
 
             ...input,

@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ArrowUpRight } from "lucide-react-native";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -15,24 +15,25 @@ import { useThemeColor } from "@/src/components/Themed";
 import AmountInput from "@/src/components/transaction/AmountInput";
 import NumericKeyboard from "@/src/components/transaction/NumericKeyboard";
 import ScreenHeader from "@/src/components/transaction/ScreenHeader";
-import { formatCurrency } from "@/src/utils/CurrencyFormat";
+import { formatCurrency, restoreFormat } from "@/src/utils/CurrencyFormat";
 import { useFanDraftStore } from "@/src/store/fan-draft";
-import { useWalletStore } from "@/src/store/wallet";
 
 export default function SendAmount() {
   const router = useRouter();
 
-  const { address, chainId, network, token = "ETH", tokenAddress, decimals = "18" } = useLocalSearchParams<{
+  const { address, chainId, network, token = "ETH", tokenAddress, decimals = "18", usdBalance = "0", tokenPrice = "0" } = useLocalSearchParams<{
     address: string;
     chainId: string;
     network: string;
     token: string;
     tokenAddress: string;
     decimals: string;
+    usdBalance: string;
+    tokenPrice: string;
   }>();
 
-  const [amount, setAmount] = useState("");
-  const balances = useWalletStore((state) => state.balances);
+  // What the user types on the keypad is USD.
+  const [usdInput, setUsdInput] = useState("");
 
   const background = useThemeColor({}, "background");
   const text = useThemeColor({}, "text");
@@ -42,41 +43,45 @@ export default function SendAmount() {
 
   const shortAddress = useMemo(() => {
     if (!address) return "";
-
     return `${address.slice(0, 8)}...${address.slice(-6)}`;
   }, [address]);
-  const Famount = formatCurrency(amount);
 
+  const price = Number(tokenPrice);
+  const balance = Number(usdBalance);
+
+  // Formatted USD amount (what's displayed/typed).
+  const usdAmount = formatCurrency(usdInput);
+  const usdValue = Number(usdAmount) || 0;
+
+  // Token amount is DERIVED from the USD entered, using the rate.
+  const tokenAmount = price > 0 ? restoreFormat(usdAmount) / price : 0;
+
+  const canContinue = usdValue > 0 && price > 0 && usdValue <= balance;
+
+  // Side effects (store writes) belong in an effect, not the render body.
+  useEffect(() => {
+    useFanDraftStore.getState().merge({
+      amount: tokenAmount,
+    });
+  }, [tokenAmount]);
+    
   function continueToConfirm() {
-    const value = Number(amount);
-    if (!value || Number(value) <= 0) return;
+    if (!canContinue) return;
     router.push({
       pathname: "/(protected)/send/confirm",
       params: {
         address,
-        amount: Famount,
+        amount: String(tokenAmount), // token amount actually being sent
         token,
         tokenAddress,
         chainId,
         network,
         decimals,
+        destinationUsd: String(usdAmount), // USD the user entered
       },
     });
   }
 
-  const selectedAsset = balances.find((asset: any) => asset.ticker === token || asset.symbol === token) as any;
-  const balance = selectedAsset ? Number(selectedAsset.amount) / 10 ** Number(selectedAsset.decimals ?? decimals) : 0;
-  const canContinue =
-    Number(Famount) > 0 &&
-    Number(Famount) <= balance;
-
-  useFanDraftStore
-    .getState()
-    .merge({
-
-      amount: Number(Famount),
-
-    });
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -112,7 +117,7 @@ export default function SendAmount() {
           >
             <ArrowUpRight
               size={18}
-              color="#fff"
+              color={text}
             />
           </View>
 
@@ -142,11 +147,22 @@ export default function SendAmount() {
           </View>
         </View>
 
-        <AmountInput value={Famount} balance={String(balance)} />
+        {/*
+          value: the USD amount the user is typing (primary, editable).
+          destinationUsd here is repurposed to show the converted TOKEN amount
+          as the secondary "≈ X ETH" line — swap this prop/usage to match
+          whatever AmountInput actually expects for its secondary line.
+        */}
+        <AmountInput
+          value={usdAmount}
+          balance={String(balance)}
+          tokenSymbol={token}
+          tokenAmount={tokenAmount}
+        />
 
         <NumericKeyboard
-          value={amount}
-          onChange={setAmount}
+          value={usdInput}
+          onChange={setUsdInput}
         />
       </ScrollView>
 
@@ -164,7 +180,7 @@ export default function SendAmount() {
             },
           ]}
         >
-          <Text style={styles.buttonText}>
+          <Text style={[styles.buttonText, { color: card }]}>
             Continue
           </Text>
         </Pressable>
@@ -225,7 +241,6 @@ const styles = StyleSheet.create({
   },
 
   buttonText: {
-    color: "#fff",
     fontSize: 17,
     fontWeight: "700",
   },

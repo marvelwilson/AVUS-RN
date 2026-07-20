@@ -13,6 +13,8 @@ export interface Wallet {
 
     smartAccountAddress: string;
 
+    kernelAddress?: string;
+
     network: WalletNetwork;
 
     sraConfigVersion?: number;
@@ -26,6 +28,8 @@ export interface RegisterWalletRequest {
     embeddedAddress: string;
 
     smartAccountAddress: string;
+
+    kernelAddress: string;
 
     network: WalletNetwork;
 

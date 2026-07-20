@@ -14,16 +14,76 @@ export const chatSchema = z.object({
     body: z.object({
         message: z.string().trim().min(1).max(1000),
         draft: z.object({
+
             intent: optionalIntent,
-            recipient: optionalText,
-            amount: z.preprocess(value => typeof value === "number" && value > 0 ? value : undefined, z.number().positive().optional()),
+
+            tokenAddress: optionalText,
+
+            address: optionalText,
+            
+            amount: z.preprocess(
+                value =>
+                    typeof value === "number" &&
+                        value > 0
+                        ? value
+                        : undefined,
+                z.number().positive().optional(),
+            ),
+
             token: optionalText,
-            chain: optionalText,
+
+            network: optionalText,
+
+            chainId: z.preprocess(
+                value =>
+                    typeof value === "number"
+                        ? value
+                        : undefined,
+                z.number().optional(),
+            ),
+
+            decimals: z.preprocess(
+                value =>
+                    typeof value === "number"
+                        ? value
+                        : undefined,
+                z.number().optional(),
+            ),
+
+            usdBalance: z.preprocess(
+                value =>
+                    typeof value === "number"
+                        ? value
+                        : undefined,
+                z.number().optional(),
+            ),
+
+            tokenPrice: z.preprocess(
+                value =>
+                    typeof value === "number"
+                        ? value
+                        : undefined,
+                z.number().optional(),
+            ),
+
+            destinationUsd: z.preprocess(
+                value =>
+                    typeof value === "number"
+                        ? value
+                        : undefined,
+                z.number().optional(),
+            ),
+
             fiat: optionalText,
+
             paymentMethod: optionalText,
+
             withdrawalMethod: optionalText,
+
             fromToken: optionalText,
+
             toToken: optionalText,
+
         }).default({}),
         history: z.array(z.object({
             role: z.enum(["user", "assistant"]),

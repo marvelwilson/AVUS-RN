@@ -16,7 +16,7 @@ class ClipboardTool implements FanTool {
 
         return {
 
-            recipient: await Clipboard.getStringAsync(),
+            address: await Clipboard.getStringAsync(),
 
         };
 

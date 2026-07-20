@@ -8,7 +8,7 @@ export default {
 
         name: "FAN",
 
-        provider: "CHATGPT",
+        provider: "GEMINI",
 
         language: "en",
 
@@ -50,10 +50,10 @@ export default {
         requiredFields: {
 
             send: [
-                "recipient",
+                "address",
                 "amount",
                 "token",
-                "chain",
+                "network",
             ],
 
             receive: [],
@@ -62,7 +62,7 @@ export default {
                 "amount",
                 "fiat",
                 "token",
-                "chain",
+                "network",
                 "paymentMethod",
             ],
 
@@ -70,7 +70,7 @@ export default {
                 "amount",
                 "token",
                 "fiat",
-                "chain",
+                "network",
                 "withdrawalMethod",
             ],
 
@@ -78,7 +78,7 @@ export default {
                 "amount",
                 "fromToken",
                 "toToken",
-                "chain",
+                "network",
             ],
 
             gamefi: [],

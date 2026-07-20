@@ -10,13 +10,25 @@ export interface FanDraft {
 
     intent?: FanIntent;
 
-    recipient?: string;
+    address?: string;
+
+    tokenAddress?: string;
 
     amount?: number;
 
     token?: string;
+    
+    network?: string;
 
-    chain?: string;
+    chainId?: number;
+
+    decimals?: number;
+
+    usdBalance?: number;
+
+    tokenPrice?: number;
+
+    destinationUsd?: number;
 
     fiat?: string;
 

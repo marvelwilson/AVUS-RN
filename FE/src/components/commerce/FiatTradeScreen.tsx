@@ -46,7 +46,7 @@ export default function FiatTradeScreen({ mode }: { mode: "buy" | "sell" }) {
         <View style={[styles.notice, { borderColor: border }]}><ShieldCheck color={primary} size={20} /><Text style={{ color: subtext, flex: 1 }}>A licensed on/off-ramp provider is required before real fiat orders can be enabled.</Text></View>
       </ScrollView>
       <View style={styles.footer}>
-        <Pressable disabled style={[styles.button, { backgroundColor: primary, opacity: 0.55 }]}><CreditCard color="#fff" size={20} /><Text style={styles.buttonText}>Coming soon</Text></Pressable>
+        <Pressable disabled style={[styles.button, { backgroundColor: primary, opacity: 0.55 }]}><CreditCard color={text} size={20} /><Text style={[styles.buttonText, {color: text}]}>Coming soon</Text></Pressable>
       </View>
     </View>
   );
@@ -58,5 +58,5 @@ const styles = StyleSheet.create({
   input: { height: 76, borderRadius: 18, borderWidth: 1, paddingHorizontal: 18, flexDirection: "row", alignItems: "center" }, amount: { flex: 1, fontSize: 30, fontWeight: "700" },
   details: { borderRadius: 18, padding: 18, gap: 16 }, detailRow: { flexDirection: "row", justifyContent: "space-between", gap: 18 }, detailValue: { flex: 1, textAlign: "right", fontWeight: "600" },
   notice: { borderWidth: 1, borderRadius: 16, padding: 14, flexDirection: "row", gap: 10 }, footer: { padding: 20, paddingBottom: 30 },
-  button: { height: 56, borderRadius: 18, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 10 }, buttonText: { color: "#fff", fontSize: 16, fontWeight: "800" },
+  button: { height: 56, borderRadius: 18, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 10 }, buttonText: { fontSize: 16, fontWeight: "800" },
 });

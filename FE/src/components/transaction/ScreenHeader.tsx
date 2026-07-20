@@ -21,33 +21,27 @@ export default function ScreenHeader({
 }: Props) {
   const router = useRouter();
 
-  const background = useThemeColor({}, "background");
   const text = useThemeColor({}, "text");
   const subtext = useThemeColor({}, "subtext");
-  const border = useThemeColor({}, "border");
   const card = useThemeColor({}, "card");
+
+  function handleNav() {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/(protected)/home");
+    }
+  }
 
   return (
     <SafeAreaView
+      pointerEvents="box-none"
       edges={["top"]}
-      style={{ backgroundColor: background }}
+      style={styles.safeArea}
     >
-      <View
-        style={[
-          styles.container,
-          {
-            borderBottomColor: border,
-          },
-        ]}
-      >
+      <View style={styles.container}>
         <Pressable
-          onPress={() => {
-            if (router.canGoBack()) {
-              router.back();
-            } else {
-              router.push("/(protected)/home");
-            }
-          }}
+          onPress={handleNav}
           style={[
             styles.backButton,
             {
@@ -62,20 +56,15 @@ export default function ScreenHeader({
           />
         </Pressable>
 
-        <View style={styles.textContainer}>
+        <View style={styles.titleContainer}>
           <Text
-            style={[
-              styles.title,
-              {
-                color: text,
-              },
-            ]}
+            style={styles.title}
             numberOfLines={1}
           >
             {title}
           </Text>
 
-          {subtitle ? (
+          {subtitle && (
             <Text
               style={[
                 styles.subtitle,
@@ -87,10 +76,9 @@ export default function ScreenHeader({
             >
               {subtitle}
             </Text>
-          ) : null}
+          )}
         </View>
 
-        {/* keeps title centered */}
         <View style={styles.placeholder} />
       </View>
     </SafeAreaView>
@@ -98,29 +86,56 @@ export default function ScreenHeader({
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    ...StyleSheet.absoluteFillObject,
+
+    zIndex: 9999,
+    elevation: 9999,
+
+    justifyContent: "flex-start",
+
+    pointerEvents: "box-none",
+  },
+
   container: {
     height: 72,
-    paddingHorizontal: 20,
+
+    marginHorizontal: 16,
+    marginTop: 8,
+
     flexDirection: "row",
     alignItems: "center",
-    borderBottomWidth: StyleSheet.hairlineWidth,
+
+    borderRadius: 22,
+
+    paddingHorizontal: 12,
+
+    backgroundColor: "rgba(15,15,20,0.72)",
+
+    zIndex: 9999,
+    elevation: 9999,
   },
 
   backButton: {
-    width: 44,
-    height: 44,
+    width: 46,
+    height: 46,
+
     borderRadius: 14,
+
     justifyContent: "center",
     alignItems: "center",
   },
 
-  textContainer: {
+  titleContainer: {
     flex: 1,
+
     alignItems: "center",
-    paddingHorizontal: 16,
+
+    paddingHorizontal: 12,
   },
 
   title: {
+    color: '#fff',
     fontSize: 20,
     fontWeight: "700",
   },
@@ -131,6 +146,6 @@ const styles = StyleSheet.create({
   },
 
   placeholder: {
-    width: 44,
+    width: 46,
   },
 });

@@ -5,7 +5,7 @@ export function validateWalletRegistration(
     res: Response,
     next: NextFunction
 ) {
-    const { embeddedAddress, smartAccountAddress, network, sraConfigVersion } = req.body;
+    const { embeddedAddress, smartAccountAddress, kernelAddress, network, sraConfigVersion } = req.body;
 
     if (!embeddedAddress || typeof embeddedAddress !== "string") {
         return res.status(400).json({
@@ -19,6 +19,10 @@ export function validateWalletRegistration(
             success: false,
             message: "smartAccountAddress is required.",
         });
+    }
+
+    if (!kernelAddress || typeof kernelAddress !== "string") {
+        return res.status(400).json({ success: false, message: "kernelAddress is required." });
     }
 
     if (!network || typeof network !== "string") {

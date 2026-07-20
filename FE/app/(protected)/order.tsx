@@ -9,6 +9,8 @@ import TransactionService from "@/src/services/transaction.service";
 import WalletService from "@/src/services/wallet.service";
 import { StatusModal } from "@/src/store/status-modal";
 import { useWalletStore } from "@/src/store/wallet";
+import { restoreFormat } from "@/src/utils/CurrencyFormat";
+import { getChainName } from "@/src/constants/chains";
 
 const comingSoon = [
   { title: "Food", icon: Utensils }, { title: "Flights", icon: Plane },
@@ -20,9 +22,13 @@ export default function Order() {
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState<string>();
   const balances = useWalletStore((state) => state.balances) as any[];
-  const background = useThemeColor({}, "background"); const card = useThemeColor({}, "card");
-  const text = useThemeColor({}, "text"); const subtext = useThemeColor({}, "subtext");
-  const primary = useThemeColor({}, "primary"); const border = useThemeColor({}, "border");
+  const background = useThemeColor({}, "background");
+  const card = useThemeColor({}, "card");
+  const text = useThemeColor({}, "text");
+  const subtext = useThemeColor({}, "subtext");
+  const primary = useThemeColor({}, "primary");
+  const border = useThemeColor({}, "border");
+  const secondary = useThemeColor({}, "secondary");
 
   useEffect(() => { void commerceApi.products().then(setProducts).catch(() => StatusModal.error("Marketplace", "The catalog is temporarily unavailable.")).finally(() => setLoading(false)); }, []);
 
@@ -60,11 +66,21 @@ export default function Order() {
       }
 
       const result = await TransactionService.send({
-        recipient: quote.merchantWallet, token: quote.tokenAddress,
-        amount: BigInt(quote.total), destinationChainId: quote.chainId,
-        tokenSymbol: quote.token, decimals: quote.decimals,
+        recipient: quote.merchantWallet,
+        amount: parseUnits(
+          String(restoreFormat(quote.total)),
+          Number(quote.decimals),
+        ),
+        destination: {
+          chainId: quote.chainId,
+          token: quote.tokenAddress,
+          symbol: quote.token,
+          network: getChainName(quote.chainId)
+        },
+        decimals: quote.decimals
       });
-      const txHash = result.receipt?.receipt?.transactionHash;
+
+      const txHash = result.receipt?.receipt?.inputUiHashes;
       await commerceApi.submitPayment(quote._id, result.uiHash, txHash);
       StatusModal.success("Payment submitted", "Your order is being verified on Arbitrum.");
     } catch (error) {
@@ -82,9 +98,9 @@ export default function Order() {
           const matchingBalance = balances.find((item) => String(item.ticker ?? item.symbol ?? "").toUpperCase() === product.token.toUpperCase());
           const available = matchingBalance ? BigInt(matchingBalance.amount) : 0n;
           const appearsAffordable = available >= BigInt(product.price);
-          return <View key={product._id} style={[styles.product, { backgroundColor: card, borderColor: border }]}> 
+          return <View key={product._id} style={[styles.product, { backgroundColor: card, borderColor: border }]}>
             <View style={styles.productInfo}><Text style={[styles.productName, { color: text }]}>{product.name}</Text><Text style={{ color: subtext }}>{product.description}</Text><Text style={[styles.price, { color: primary }]}>{displayPrice.toFixed(2)} {product.token}</Text>{!appearsAffordable ? <Text style={styles.lowBalance}>Balance may be insufficient</Text> : null}</View>
-            <Pressable disabled={!!paying} onPress={() => pay(product)} style={[styles.pay, { backgroundColor: primary, opacity: paying ? 0.6 : 1 }]}>{paying === product._id ? <ActivityIndicator color="#fff" /> : <Text style={styles.payText}>Pay</Text>}</Pressable>
+            <Pressable disabled={!!paying} onPress={() => pay(product)} style={[styles.pay, { backgroundColor: primary, opacity: paying ? 0.6 : 1 }]}>{paying === product._id ? <ActivityIndicator color={secondary} /> : <Text style={[styles.payText, { color: card }]}>Pay</Text>}</Pressable>
           </View>;
         }) : <Text style={[styles.empty, { color: subtext }]}>Set COMMERCE_MERCHANT_WALLET on the backend to publish the starter catalog.</Text>}
         <Text style={[styles.section, { color: text }]}>More services</Text>
@@ -97,7 +113,7 @@ export default function Order() {
 const styles = StyleSheet.create({
   container: { flex: 1 }, content: { padding: 20, paddingBottom: 40, gap: 14 }, hero: { borderRadius: 22, padding: 20, gap: 9 }, title: { fontSize: 24, fontWeight: "800" }, section: { fontSize: 19, fontWeight: "800", marginTop: 10 },
   product: { borderWidth: 1, borderRadius: 18, padding: 16, flexDirection: "row", gap: 12, alignItems: "center" }, productInfo: { flex: 1, gap: 5 }, productName: { fontSize: 16, fontWeight: "800" }, price: { fontSize: 15, fontWeight: "800", marginTop: 4 },
-  pay: { minWidth: 68, height: 44, borderRadius: 14, alignItems: "center", justifyContent: "center" }, payText: { color: "#fff", fontWeight: "800" }, empty: { textAlign: "center", padding: 24, lineHeight: 20 },
+  pay: { minWidth: 68, height: 44, borderRadius: 14, alignItems: "center", justifyContent: "center" }, payText: { fontWeight: "800" }, empty: { textAlign: "center", padding: 24, lineHeight: 20 },
   lowBalance: { color: "#EF4444", fontSize: 11, fontWeight: "700", marginTop: 2 },
   grid: { flexDirection: "row", flexWrap: "wrap", gap: 10 }, service: { width: "47%", borderWidth: 1, borderRadius: 17, padding: 15, gap: 9 }, badge: { flexDirection: "row", gap: 4, alignItems: "center" },
 });

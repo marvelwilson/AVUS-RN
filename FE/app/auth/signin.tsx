@@ -39,14 +39,15 @@ export default function SignIn() {
     setStatus("idle");
     setIsLoading(true);
     try {
-      await login({method: "email", email: email});
+      await login({ method: "email", email: email });
       setIsLoading(false);
       setStatusMessage("Your wallet is ready. Taking you home…");
       setStatus("success");
       await new Promise(resolve => setTimeout(resolve, 700));
       router.replace("/(protected)/home");
     } catch (e: any) {
-      setStatusMessage(e?.message || "We could not sign you in. Please try again.");
+      setStatusMessage("We could not sign you in. Please try again.");
+      console.log(e?.message)
       setStatus("error");
     } finally {
       setIsLoading(false);
@@ -60,7 +61,8 @@ export default function SignIn() {
     setIsLoading(true);
 
     try {
-      await login({method: "google"});
+      await login({ method: "google" });
+      
       setIsLoading(false);
       setStatusMessage("Your wallet is ready. Taking you home…");
       setStatus("success");
@@ -81,7 +83,8 @@ export default function SignIn() {
           break;
 
         default:
-          setStatusMessage(e?.message ?? "Google sign-in failed. Please try again.");
+          console.log(e?.message)
+          setStatusMessage("Google sign-in failed. Please try again.");
           setStatus("error");
       }
     } finally {
@@ -166,7 +169,7 @@ export default function SignIn() {
         </View>
         {/* Google Login Button */}
 
-        <TouchableOpacity style={styles.googleButton} onPress={isLoading ? () => true : handleGoogleLogin}>
+        <TouchableOpacity style={[styles.googleButton]} onPress={isLoading ? () => true : handleGoogleLogin}>
 
           <Text style={styles.googleIcon}>
             G

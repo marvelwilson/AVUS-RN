@@ -19,7 +19,7 @@ class TransactionController {
         res: Response,
         next: NextFunction,
     ) {
-
+        
         try {
             if (!req.user) {
                 return res.status(401).json({ success: false, message: "Unauthorized." });
@@ -52,13 +52,13 @@ class TransactionController {
                         req.body.source,
 
                     network:
-                        req.body.network,
+                        req.body.destinationAsset.network,
 
                     chainId:
-                        req.body.chainId,
+                        req.body.destinationAsset.chainId,
 
                     token:
-                        req.body.token,
+                        req.body.destinationAsset.symbol ?? req.body.destinationAsset.token,
 
                     amount:
                         req.body.amount,
@@ -69,8 +69,11 @@ class TransactionController {
                     recipient:
                         req.body.recipient,
 
-                    metadata:
-                        req.body.metadata,
+                    metadata: {
+                        ...req.body.metadata,
+                        destinationTokenAddress: req.body.destinationAsset.token,
+                        sourceAsset: req.body.sourceAsset,
+                    },
 
                 });
 
@@ -85,7 +88,7 @@ class TransactionController {
             );
 
         } catch (error) {
-
+            
             next(error);
 
         }

@@ -9,6 +9,15 @@ export function formatCurrency(digits: string) {
   });
 }
 
+export function NumberCurrency(digits: number, min = 2, max = 2) {
+
+  return digits.toLocaleString(undefined, {
+    minimumFractionDigits: min,
+    maximumFractionDigits: max,
+  })
+
+}
+
 export function restoreFormat(digits: string) {
 
   return Number(

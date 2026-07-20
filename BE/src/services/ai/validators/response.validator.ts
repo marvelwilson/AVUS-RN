@@ -49,9 +49,9 @@ class ResponseValidator {
         if (response.intent !== "collect_information" && ["send", "buy", "sell"].includes(response.intent)) {
             const asset = ConversationService.supportedAsset(response.draft ?? {});
             if (!asset.supported) {
-                const chain = response.draft?.chain;
+                const chain = response.draft?.network;
                 response.intent = "collect_information";
-                response.waitingFor = asset.reason === "chain_missing" ? "chain" : "chain";
+                response.waitingFor = asset.reason === "chain_missing" ? "network" : "network";
                 response.message = asset.reason === "chain_unsupported"
                     ? `${chain} is not currently supported. Which supported network would you like to use?`
                     : asset.reason === "token_unsupported"

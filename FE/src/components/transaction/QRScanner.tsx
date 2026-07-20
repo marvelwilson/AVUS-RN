@@ -81,7 +81,7 @@ export default function QRScanner() {
                 >
                     <Text
                         style={{
-                            color: "#fff",
+                            color:text,
                             fontWeight: "700",
                         }}
                     >

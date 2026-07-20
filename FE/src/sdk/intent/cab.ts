@@ -1,7 +1,8 @@
 import { arbitrum, avalanche, base, bsc, mainnet, optimism, polygon } from "viem/chains";
 
 import { getIntentClient } from "./client";
-
+import marketApi from "@/src/api/market.api";
+import { SUPPORTED_SOURCE_TOKENS } from "@/src/constants";
 export async function getCAB(
     tokenTickers?: string[],
 ) {
@@ -36,11 +37,10 @@ export async function getCAB(
 }
 
 export async function getPortfolio() {
-
     const cab =
         await getCAB();
 
-    const assets =
+    const rawAssets =
         cab.tokens.map((token: any) => ({
 
             ticker: token.ticker,
@@ -67,11 +67,23 @@ export async function getPortfolio() {
 
         }));
 
+    const prices = await marketApi.prices(rawAssets.map((asset: any) => asset.ticker));
+    const assets = rawAssets.map((asset: any) => {
+        const usdPrice = prices[String(asset.ticker).toUpperCase()] ?? 0;
+        return {
+            ...asset,
+            usdPrice,
+            usdValue: (Number(asset.amount) / 10 ** Number(asset.decimals)) * usdPrice,
+        };
+    });
+
     return {
 
         assets,
 
         tokenCount: assets.length,
+
+        totalUsd: assets.reduce((sum: number, asset: any) => sum + asset.usdValue, 0),
 
     };
 

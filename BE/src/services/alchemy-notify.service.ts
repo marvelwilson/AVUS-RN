@@ -30,6 +30,9 @@ class AlchemyNotifyService {
     async subscribeMany(addresses: string[], networks?: string[]) {
         if (!this.configured()) throw new Error("Alchemy Notify is not configured.");
         const entries = Object.entries(this.webhookIds).filter(([network]) => !networks || networks.includes(network));
+        if (!entries.length) {
+            throw new Error(`No Alchemy webhook IDs matched: ${(networks ?? []).join(", ") || "none configured"}. Configured keys: ${Object.keys(this.webhookIds).join(", ") || "none"}.`);
+        }
         const normalized = [...new Set(addresses.map(address => address.toLowerCase()))];
         for (let offset = 0; offset < normalized.length; offset += 500) {
             const batch = normalized.slice(offset, offset + 500);
@@ -48,6 +51,16 @@ class AlchemyNotifyService {
         const supplied = signature.trim();
         if (expected.length !== supplied.length) return false;
         return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(supplied));
+    }
+
+    errorMessage(error: unknown) {
+        if (axios.isAxiosError(error)) {
+            const details = typeof error.response?.data === "string"
+                ? error.response.data
+                : JSON.stringify(error.response?.data ?? {});
+            return `Alchemy ${error.response?.status ?? "network"}: ${details || error.message}`;
+        }
+        return error instanceof Error ? error.message : String(error);
     }
 }
 

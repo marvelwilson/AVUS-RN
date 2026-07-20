@@ -21,7 +21,7 @@ class SmartRoutingService {
     /**
      * Get / Create Smart Routing Address
      */
-    async getOrCreate(owner: AddressType, cabAddress: AddressType) {
+    async getOrCreate(owner: AddressType, destination: AddressType) {
 
         const transferToCabCall = createCall({
             target: FLEX.TOKEN_ADDRESS,
@@ -29,13 +29,13 @@ class SmartRoutingService {
             abi: erc20Abi,
             functionName: "transfer",
             args: [
-                cabAddress,
+                destination,
                 FLEX.AMOUNT,
             ],
         });
 
         const transferNativeCall = createCall({
-            target: cabAddress,
+            target: destination,
             value: FLEX.NATIVE_AMOUNT,
         })
 

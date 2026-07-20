@@ -6,6 +6,7 @@ import {
 import WalletService from "@/src/services/wallet.service";
 
 import { useWalletStore } from "@/src/store/wallet";
+import { useAuthStore } from "@/src/store/auth";
 
 export default function WalletProvider({
     children,
@@ -15,17 +16,18 @@ export default function WalletProvider({
         useWalletStore(
             state => state.initialized,
         );
+    const isAuthenticated = useAuthStore(state => state.isAuthenticated);
 
     useEffect(() => {
 
-        if (initialized) {
+        if (!isAuthenticated || initialized) {
             return;
         }
 
         WalletService.initialize()
             .catch(console.error);
 
-    }, [initialized]);
+    }, [initialized, isAuthenticated]);
 
     return (
         <>

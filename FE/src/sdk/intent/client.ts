@@ -51,7 +51,6 @@ export async function getIntentClient() {
     );
   }
 
-  console.log("Connected: ", rpcChainId, bundlerChainId)
 
   const validator =
     await signerToEcdsaValidator(
@@ -100,7 +99,9 @@ export async function getIntentClient() {
 
 export async function getIntentAccountAddress() {
   const client = await getIntentClient();
-  return client.account.address;
+  const address = client.account?.address;
+  if (!address) throw new Error("ZeroDev intent account address is unavailable.");
+  return address;
 }
 
 export function resetIntentClient() {

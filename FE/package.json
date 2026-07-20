@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "dependencies": {
     "@expo/vector-icons": "^15.1.1",
+    "@magic-ext/evm": "^1.7.0",
     "@magic-ext/react-native-expo-oauth": "^30.7.1",
     "@magic-sdk/react-native-bare": "^34.6.1",
     "@magic-sdk/react-native-expo": "^34.6.1",

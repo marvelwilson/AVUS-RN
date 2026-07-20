@@ -1,119 +1,73 @@
 import {
     encodeFunctionData,
-
     erc20Abi,
     zeroAddress,
 } from "viem";
+import type { Address } from "viem";
 
-import type {
+import {
     SendTokenInput,
-
     TransactionBundle,
 } from "./types";
 
 export class TransactionBuilder {
 
-    /**
-     * ERC20 Transfer
-     */
     static sendToken({
-
         recipient,
-
-        token,
-
         amount,
-
-        destinationChainId,
-
-        sourceChainId,
-
+        source,
+        destination,
     }: SendTokenInput): TransactionBundle {
 
-        const isNative = token.toLowerCase() === zeroAddress;
+        const isNative = destination.token.toLowerCase() === zeroAddress;
 
         return {
 
-            calls: [
-
-                isNative ? {
-                    to: recipient,
-                    value: amount,
-                    data: "0x",
-                } : {
-
-                    to: token,
-
+            /**
+             * Execute on DESTINATION chain.
+             */
+            calls: isNative
+                ? [{ to: recipient, value: amount, data: "0x" }]
+                : [{
+                    to: destination.token,
                     value: 0n,
+                    data: encodeFunctionData({
+                        abi: erc20Abi,
+                        functionName: "transfer",
+                        args: [recipient, amount],
+                    }),
+                }],
 
-                    data:
-
-                        encodeFunctionData({
-
-                            abi:
-
-                                erc20Abi,
-
-                            functionName:
-
-                                "transfer",
-
-                            args: [
-
-                                recipient,
-
-                                amount,
-
-                            ],
-
-                        }),
-
-                },
-
-            ],
-
+            /**
+             * Destination asset
+             */
             outputTokens: [
 
                 {
-
-                    chainId:
-
-                        destinationChainId,
-
-                    address:
-
-                        token,
-
+                    chainId: destination.chainId,
+                    address: destination.token,
                     amount,
-
                 },
 
             ],
 
+            /**
+             * Optional source restriction.
+             *
+             * If omitted,
+             * ZeroDev automatically chooses
+             * the best chain.
+             */
             inputTokens:
-
-                sourceChainId
-
+                source
                     ? [
-
                         {
-
-                            chainId:
-
-                                sourceChainId,
-
-                            address:
-
-                                token,
-
+                            chainId: source.chainId,
+                            address: source.token,
                         },
-
                     ]
-
                     : undefined,
 
         };
-
     }
-
 }

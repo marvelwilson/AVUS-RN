@@ -19,6 +19,8 @@ export interface IWallet extends Document {
 
     smartAccountAddress?: string;
 
+    kernelAddress?: string;
+
     sraConfigVersion: number;
 
     network: WalletNetwork;
@@ -28,6 +30,8 @@ export interface IWallet extends Document {
     isDeployed: boolean;
 
     monitoringStatus: "PENDING" | "ACTIVE" | "FAILED";
+
+    monitoringError?: string;
 
     createdAt: Date;
     updatedAt: Date;
@@ -80,6 +84,12 @@ const walletSchema = new Schema<IWallet>(
             default: false,
         },
 
+        kernelAddress: {
+            type: String,
+            lowercase: true,
+            index: true,
+        },
+
         sraConfigVersion: {
             type: Number,
             default: 0,
@@ -89,6 +99,9 @@ const walletSchema = new Schema<IWallet>(
             enum: ["PENDING", "ACTIVE", "FAILED"],
             default: "PENDING",
             index: true,
+        },
+        monitoringError: {
+            type: String,
         },
     },
     {

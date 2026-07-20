@@ -4,17 +4,23 @@ export interface SendTokenInput {
 
     recipient: Address;
 
-    token: Address;
-
     amount: bigint;
 
-    destinationChainId: number;
+    destination: {
+        chainId: number;
+        token: Address;
+        symbol?: string;
+        network?: string;
+    };
 
-    sourceChainId?: number;
+    source?: {
+        chainId: number;
+        token: Address;
+        symbol?: string;
+        network?: string;
+    };
 
-    tokenSymbol?: string;
-
-    decimals?: number;
+    decimals?: number | string;
 
 }
 

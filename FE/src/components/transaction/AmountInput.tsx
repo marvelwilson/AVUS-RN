@@ -1,31 +1,38 @@
 import { StyleSheet, Text, View } from "react-native";
 
 import { useThemeColor } from "@/src/components/Themed";
-import { formatCurrency, restoreFormat } from "@/src/utils/CurrencyFormat";
+import { NumberCurrency, formatCurrency, restoreFormat } from "@/src/utils/CurrencyFormat";
 
 type Props = {
-  value: string;
-  balance?: string;
+  value: string; // USD entered by the user
+  balance?: string; // Wallet balance in USD
+  tokenSymbol?: string; // ETH, USDC, etc.
+  tokenAmount?: number; // Calculated token amount
 };
 
 export default function AmountInput({
   value,
-  balance = "0.00",
+  balance = "0",
+  tokenSymbol = "USDC",
+  tokenAmount = 0,
 }: Props) {
   const text = useThemeColor({}, "text");
   const subtext = useThemeColor({}, "subtext");
   const card = useThemeColor({}, "card");
   const border = useThemeColor({}, "border");
+
   const danger = "#EF4444";
 
-  const camount = restoreFormat(value);
+  const usdAmount = Number(restoreFormat(value) || 0);
   const walletBalance = Number(balance);
+  
+  const insufficient = usdAmount > walletBalance;
 
-  const insufficient =
-    camount > 0 && camount > walletBalance;
+  const formattedAmount = formatCurrency(value);
 
-  const formattedAmount = formatCurrency(value)
-  const formattedBalance = formatCurrency(walletBalance.toString())
+  const formattedBalance = NumberCurrency(walletBalance)
+
+  const formattedTokenAmount = NumberCurrency(tokenAmount, 0, 6)
 
   return (
     <View
@@ -33,9 +40,7 @@ export default function AmountInput({
         styles.card,
         {
           backgroundColor: card,
-          borderColor: insufficient
-            ? danger
-            : border,
+          borderColor: insufficient ? danger : border,
         },
       ]}
     >
@@ -57,30 +62,28 @@ export default function AmountInput({
           style={[
             styles.amount,
             {
-              color: insufficient
-                ? danger
-                : text,
+              color: insufficient ? danger : text,
             },
           ]}
         >
-          {formattedAmount}
+          ${formattedAmount}
         </Text>
       </View>
 
       <Text
         style={[
-          styles.fiat,
+          styles.converted,
           {
             color: subtext,
           },
         ]}
       >
-        ≈ ${formattedAmount} USD
+        ≈ {formattedTokenAmount} {tokenSymbol}
       </Text>
 
       {insufficient && (
         <Text style={styles.error}>
-          Insufficient balance
+          low balance
         </Text>
       )}
 
@@ -104,18 +107,39 @@ export default function AmountInput({
         >
           Available Balance
         </Text>
-
+       
         <Text
           style={[
             styles.balance,
             {
-              color: insufficient
-                ? danger
-                : text,
+              color: insufficient ? danger : text,
             },
           ]}
         >
-          ${formattedBalance}
+          ${formattedBalance} USD
+        </Text>
+      </View>
+      <View style={styles.balanceRow}>
+        <Text
+          style={[
+            styles.balanceLabel,
+            {
+              color: subtext,
+            },
+          ]}
+        >
+          Minimal withdrawal
+        </Text>
+       
+        <Text
+          style={[
+            styles.balance,
+            {
+              color: insufficient ? danger : text,
+            },
+          ]}
+        >
+          $0.5 USD
         </Text>
       </View>
     </View>
@@ -149,7 +173,7 @@ const styles = StyleSheet.create({
     maxWidth: "90%",
   },
 
-  fiat: {
+  converted: {
     marginTop: 10,
     textAlign: "center",
     fontSize: 15,

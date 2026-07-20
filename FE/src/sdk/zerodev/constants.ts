@@ -10,4 +10,4 @@ export const ZERODEV = {
 
 };
 
-export const SRA_CONFIG_VERSION = 3;
+export const SRA_CONFIG_VERSION = 4;

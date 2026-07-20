@@ -125,7 +125,7 @@ export default function VerifyPinModal({
 
           <View style={{ marginTop: 30 }}>
             <PrimaryButton
-              title={loading ? "Verifying..." : "Unlock"}
+              title={loading ? "Verifying..." : "Proceed"}
               onPress={handleVerify}
             />
           </View>

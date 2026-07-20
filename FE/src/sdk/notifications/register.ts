@@ -13,9 +13,6 @@ import {
 } from "./permissions";
 
 export async function registerPushToken() {
-
-    await requestPermission();
-
     if (Platform.OS === "android") {
 
         await Notifications.setNotificationChannelAsync(
@@ -49,6 +46,8 @@ export async function registerPushToken() {
         );
 
     }
+
+    await requestPermission();
 
     const projectId =
         Constants.expoConfig?.extra?.eas?.projectId ??

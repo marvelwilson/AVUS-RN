@@ -3,22 +3,17 @@ import { TransactionSource, TransactionStatus, TransactionType } from "../../mod
 import notificationService from "../notifications/notification.service";
 import transactionService from "../transactions/transaction.service";
 import socketService from "../websocket/socket.service";
+import { SRA_CHAINS } from "../fan/sra.assets";
 
 const NETWORKS: Record<string, { chainId: number; name: string }> = {
     ETH_MAINNET: { chainId: 1, name: "ETHEREUM" },
     ARB_MAINNET: { chainId: 42161, name: "ARBITRUM" },
     BASE_MAINNET: { chainId: 8453, name: "BASE" },
     OPT_MAINNET: { chainId: 10, name: "OPTIMISM" },
-};
-
-const TOKEN_ADDRESSES: Record<number, Record<string, string>> = {
-    42161: {
-        "0x82af49447d8a07e3bd95bd0d56f35241523fbab1": "WETH",
-        "0xaf88d065e77c8cc2239327c5edb3a432268e5831": "USDC",
-        "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9": "USDT",
-        "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1": "DAI",
-        "0x2f2a2543b76a4166549f7aa2be75bef0aefc5b0f": "WBTC",
-    },
+    MATIC_MAINNET: { chainId: 137, name: "POLYGON" },
+    BNB_MAINNET: { chainId: 56, name: "BSC" },
+    BSC_MAINNET: { chainId: 56, name: "BSC" },
+    AVAX_MAINNET: { chainId: 43114, name: "AVALANCHE" },
 };
 
 type AlchemyActivity = {
@@ -36,15 +31,13 @@ type AlchemyActivity = {
 
 class WebhookService {
     private tokenFor(chainId: number, activity: AlchemyActivity) {
+        const chain = SRA_CHAINS.find(item => item.chainId === chainId);
+        if (!chain) return undefined;
         const address = activity.rawContract?.address?.toLowerCase();
         const native = !address && ["external", "internal"].includes(activity.category ?? "");
-        // Keep this aligned with FE/src/constants/chains.ts (the SRA srcTokens configuration).
-        if (chainId === 1) return native ? "ETH" : undefined;
-        if (chainId === 10) {
-            return address === "0x0b2c639c533813f4aa9d7837caf62653d097ff85" ? "USDC" : undefined;
-        }
-        if (chainId === 42161 && address) return TOKEN_ADDRESSES[chainId]?.[address];
-        return undefined;
+        if (native) return chain.nativeToken;
+        return [...chain.tokens, ...(chain.sendTokens ?? [])]
+            .find(token => token.address.toLowerCase() === address)?.symbol;
     }
 
     async alchemy(payload: { id?: string; webhookId: string; event: { network: string; activity: AlchemyActivity[] } }) {
@@ -58,7 +51,12 @@ class WebhookService {
             const txHash = activity.hash?.toLowerCase();
             if (!recipient || !txHash) continue;
 
-            const wallet = await Wallet.findOne({ smartAccountAddress: recipient });
+            const wallet = await Wallet.findOne({
+                $or: [
+                    { smartAccountAddress: recipient },
+                    { kernelAddress: recipient },
+                ],
+            });
             if (!wallet) continue;
 
             const token = this.tokenFor(network.chainId, activity);

@@ -3,19 +3,18 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useState } from "react";
 
 import { useWallet } from "@/src/hooks/useWallet";
+import { NumberCurrency } from "@/src/utils/CurrencyFormat";
 
 function formatToken(amount: bigint, decimals: number) {
   const value = Number(amount) / 10 ** decimals;
-  return value.toLocaleString(undefined, { minimumFractionDigits: value < 1 ? 2 : 0, maximumFractionDigits: 6 });
+  return NumberCurrency(value, value < 1 ? 2 : 0, 6);
 }
 
 export default function BalanceCard() {
   const [hidden, setHidden] = useState(false);
   const { balances, loading } = useWallet();
 
-  const stablecoinValue = balances
-    .filter((asset: any) => ["USDC", "USDT", "DAI"].includes(asset.ticker ?? asset.symbol))
-    .reduce((sum: number, asset: any) => sum + Number(asset.amount) / 10 ** Number(asset.decimals ?? 18), 0);
+  const portfolioValue = balances.reduce((sum: number, asset: any) => sum + Number(asset.usdValue ?? 0), 0);
 
   return (
     <View style={styles.card}>
@@ -23,17 +22,9 @@ export default function BalanceCard() {
         <View><Text style={styles.eyebrow}>CHAIN-ABSTRACTED BALANCE</Text><Text style={styles.label}>Available across supported networks</Text></View>
         {loading ? <RefreshCw color="#fff" size={20} /> : <Pressable onPress={() => setHidden((value) => !value)}>{hidden ? <EyeOff color="#fff" /> : <Eye color="#fff" />}</Pressable>}
       </View>
-      <Text style={styles.balance}>{hidden ? "••••••" : `≈ $${stablecoinValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</Text>
-      <Text style={styles.caption}>Stablecoin value · other assets shown below</Text>
-      <View style={styles.assets}>
-        {balances.slice(0, 3).map((asset: any) => (
-          <View key={asset.ticker ?? asset.symbol} style={styles.asset}>
-            <Text style={styles.assetSymbol}>{asset.ticker ?? asset.symbol}</Text>
-            <Text style={styles.assetAmount}>{hidden ? "••••" : formatToken(BigInt(asset.amount), Number(asset.decimals ?? 18))}</Text>
-          </View>
-        ))}
-        {!balances.length ? <Text style={styles.empty}>No funded CAB assets yet</Text> : null}
-      </View>
+      <Text style={styles.balance}>{hidden ? "••••••" : `$${NumberCurrency(portfolioValue)}`}</Text>
+      <Text style={styles.caption}>Live market value · prices cached for 60 seconds</Text>
+      
     </View>
   );
 }

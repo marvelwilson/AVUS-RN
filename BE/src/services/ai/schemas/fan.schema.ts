@@ -1,3 +1,5 @@
+import { network } from "hardhat";
+
 export default {
 
     name: "fan_response",
@@ -95,78 +97,93 @@ export default {
                 properties: {
 
                     intent: {
-
                         type: "string",
-
                     },
 
-                    recipient: {
-
+                    address: {
                         type: "string",
+                    },
 
+                    tokenAddress: {
+                        type: "string",
                     },
 
                     amount: {
-
                         type: "number",
-
                     },
 
                     token: {
-
                         type: "string",
-
                     },
 
-                    chain: {
-
+                    network: {
                         type: "string",
+                    },
 
+                    chainId: {
+                        type: "number",
+                    },
+
+                    decimals: {
+                        type: "number",
+                    },
+
+                    usdBalance: {
+                        type: "number",
+                    },
+
+                    tokenPrice: {
+                        type: "number",
+                    },
+
+                    destinationUsd: {
+                        type: "number",
                     },
 
                     fiat: {
-
                         type: "string",
-
                     },
 
                     paymentMethod: {
-
                         type: "string",
-
                     },
 
                     withdrawalMethod: {
-
                         type: "string",
-
                     },
 
                     fromToken: {
-
                         type: "string",
-
                     },
 
                     toToken: {
-
                         type: "string",
-
                     },
-
                 },
 
                 required: [
 
                     "intent",
 
-                    "recipient",
+                    "address",
+
+                    "tokenAddress",
 
                     "amount",
 
                     "token",
 
-                    "chain",
+                    "network",
+
+                    "chainId",
+
+                    "decimals",
+
+                    "usdBalance",
+
+                    "tokenPrice",
+
+                    "destinationUsd",
 
                     "fiat",
 
@@ -181,7 +198,6 @@ export default {
                 ],
 
                 additionalProperties: false,
-
             },
 
             /**
@@ -195,13 +211,25 @@ export default {
 
                     "intent",
 
-                    "recipient",
+                    "address",
+
+                    "tokenAddress",
 
                     "amount",
 
                     "token",
 
-                    "chain",
+                    "network",
+
+                    "chainId",
+
+                    "decimals",
+
+                    "usdBalance",
+
+                    "tokenPrice",
+
+                    "destinationUsd",
 
                     "fiat",
 
@@ -228,71 +256,81 @@ export default {
 
                 properties: {
 
-                    recipient: {
-
+                    intent: {
                         type: "string",
+                    },
 
+                    address: {
+                        type: "string",
+                    },
+
+                    tokenAddress: {
+                        type: "string",
                     },
 
                     amount: {
-
                         type: "number",
-
                     },
 
                     token: {
-
                         type: "string",
-
                     },
 
-                    chain: {
-
+                    network: {
                         type: "string",
+                    },
 
+                    chainId: {
+                        type: "number",
+                    },
+
+                    decimals: {
+                        type: "number",
+                    },
+
+                    usdBalance: {
+                        type: "number",
+                    },
+
+                    tokenPrice: {
+                        type: "number",
+                    },
+
+                    destinationUsd: {
+                        type: "number",
                     },
 
                     fiat: {
-
                         type: "string",
-
                     },
 
                     paymentMethod: {
-
                         type: "string",
-
                     },
 
                     withdrawalMethod: {
-
                         type: "string",
-
                     },
 
                     fromToken: {
-
                         type: "string",
-
                     },
 
                     toToken: {
-
                         type: "string",
-
                     },
 
                 },
 
                 required: [
 
-                    "recipient",
+                    "tokenAddress",
 
                     "amount",
 
                     "token",
 
-                    "chain",
+                    "network",
 
                     "fiat",
 

@@ -14,7 +14,7 @@ import { LoginMethod } from "../utils/types";
 import WalletService from "./wallet.service";
 import WebsocketService from "./websocket.service";
 import NotificationService from "./notification.service";
-
+import { resetIntentClient } from "@/src/sdk/intent/client";
 
 class AuthService {
     /**
@@ -166,6 +166,8 @@ class AuthService {
             // Ignore Magic logout failures
         }
 
+        resetIntentClient();
+        
         await Storage.clearSession();
 
         NotificationService.destroy();

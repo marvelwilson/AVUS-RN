@@ -41,6 +41,8 @@ export interface CABAsset {
     amount: bigint;
     decimals: number;
     breakdown: CABBreakdown[];
+    usdPrice?: number;
+    usdValue?: number;
 }
 
 export interface Portfolio {

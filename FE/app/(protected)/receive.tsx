@@ -2,7 +2,7 @@ import * as Clipboard from "expo-clipboard";
 import * as Sharing from "expo-sharing";
 import QRCode from "react-native-qrcode-svg";
 
-import { Copy, Share2, ShieldCheck } from "lucide-react-native";
+import { ChevronDown, ChevronUp, Copy, Share2, ShieldCheck } from "lucide-react-native";
 
 import {
   ActivityIndicator,
@@ -25,6 +25,7 @@ import type { FanChainPolicy } from "@/src/sdk/fan/types/policy";
 export default function Receive() {
   const [chains, setChains] = useState<FanChainPolicy[]>([]);
   const [loadingChains, setLoadingChains] = useState(true);
+  const [showSupported, setShowSupported] = useState(false);
   const {
 
     receive,
@@ -131,28 +132,24 @@ export default function Receive() {
         </View>
 
         <View style={styles.supportedSection}>
-          <Text style={[styles.sectionTitle, { color: text }]}>Supported networks & tokens</Text>
-          <Text style={[styles.sectionSubtitle, { color: subtext }]}>Only send the tokens listed for each network to this address.</Text>
-          {loadingChains ? <ActivityIndicator color={primary} /> : chains.map((chain) => (
-            <View key={chain.id} style={[styles.chainCard, { backgroundColor: card, borderColor: border }]}>
-              <View style={styles.chainHeader}>
+          <Pressable onPress={() => setShowSupported(value => !value)} style={[styles.supportedToggle, { backgroundColor: card, borderColor: border }]}>
+            <Text style={[styles.sectionTitle, { color: text }]}>View supported chains and tokens</Text>
+            {showSupported ? <ChevronUp color={text} size={20} /> : <ChevronDown color={text} size={20} />}
+          </Pressable>
+          {showSupported ? <>
+            <Text style={[styles.sectionSubtitle, { color: subtext }]}>Only send the listed tokens on these networks.</Text>
+            {loadingChains ? <ActivityIndicator color={primary} /> : chains.map((chain) => (
+              <View key={chain.id} style={[styles.chainCard, { backgroundColor: card, borderColor: border }]}>
                 <Text style={[styles.chainName, { color: text }]}>{chain.name}</Text>
-                <Text style={[styles.chainId, { color: subtext }]}>Chain {chain.chainId}</Text>
+                <View style={styles.tokenList}>
+                  {chain.tokens.map((token) => (
+                    <View key={`${chain.id}-${token.symbol}`} style={[styles.tokenChip, { borderColor: border }]}>
+                      <Text style={[styles.tokenSymbol, { color: text }]}>{token.symbol}</Text>
+                    </View>
+                  ))}
+                </View>
               </View>
-              <View style={styles.tokenList}>
-                {chain.tokens.map((token) => (
-                  <View key={`${chain.id}-${token.symbol}`} style={[styles.tokenChip, { borderColor: border }]}>
-                    <Text style={[styles.tokenSymbol, { color: text }]}>{token.symbol}</Text>
-                    <Text selectable style={[styles.tokenAddress, { color: subtext }]}>
-                      {token.address === "0x0000000000000000000000000000000000000000"
-                        ? "Native"
-                        : token.address}
-                    </Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-          ))}
+            ))}</> : null}
         </View>
 
         <View
@@ -335,7 +332,6 @@ const styles = StyleSheet.create({
   },
 
   buttonText: {
-    color: "#fff",
     fontWeight: "700",
     fontSize: 15,
   },
@@ -360,14 +356,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   supportedSection: { marginTop: 24, gap: 12 },
+  supportedToggle: { borderWidth: 1, borderRadius: 16, padding: 16, flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   sectionTitle: { fontSize: 18, fontWeight: "700" },
   sectionSubtitle: { fontSize: 14, lineHeight: 20, marginBottom: 4 },
   chainCard: { borderWidth: 1, borderRadius: 18, padding: 16, gap: 12 },
-  chainHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   chainName: { fontSize: 16, fontWeight: "700" },
-  chainId: { fontSize: 12 },
   tokenList: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   tokenChip: { borderWidth: 1, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 8 },
   tokenSymbol: { fontSize: 13, fontWeight: "700" },
-  tokenAddress: { fontSize: 10, marginTop: 2, maxWidth: 280 },
 });

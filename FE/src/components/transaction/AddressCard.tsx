@@ -42,7 +42,7 @@ export default function AddressCard({
             },
           ]}
         >
-          <Text style={styles.badgeText}>
+          <Text style={[styles.badgeText, {color: text}]}>
             SRA
           </Text>
         </View>
@@ -90,7 +90,6 @@ const styles = StyleSheet.create({
   },
 
   badgeText: {
-    color: "#fff",
     fontSize: 12,
     fontWeight: "700",
   },
